@@ -1,0 +1,22 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Login from './views/Login'
+import Dashboard from './views/Dashboard'
+import Scan from './views/Scan'
+import History from './views/History'
+import ForgotPassword from './views/ForgotPassword'
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/scan" element={<Scan />} />
+        <Route path="/history" element={<History />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+      </Routes>
+    </BrowserRouter>
+  )
+}
+
+export default App
