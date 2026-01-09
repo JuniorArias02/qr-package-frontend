@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../routes/api'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Package, Scan, TrendingUp } from 'lucide-react'
 
 export default function Login() {
     const [email, setEmail] = useState('')
@@ -12,7 +12,6 @@ export default function Login() {
     const navigate = useNavigate()
 
     const handleSubmit = async (e) => {
-        // ... existing logic ...
         e.preventDefault()
         setError('')
         setLoading(true)
@@ -30,7 +29,6 @@ export default function Login() {
             const data = await response.json()
 
             if (response.ok) {
-                // Save token and user info
                 localStorage.setItem('token', data.access_token)
                 localStorage.setItem('user', JSON.stringify(data.user))
                 navigate('/dashboard')
@@ -46,79 +44,171 @@ export default function Login() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
-            <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-3xl shadow-2xl p-8 max-w-sm w-full">
-                {/* ... header ... */}
-                <div className="mb-8 flex flex-col items-center text-center">
-                    <div className="h-16 w-16 bg-gradient-to-tr from-cyan-400 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg transform rotate-3 mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8 text-white">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                        </svg>
-                    </div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">Bienvenido</h1>
-                    <p className="text-slate-400 text-sm mt-1">Inicia sesión para continuar</p>
+        <div className="min-h-screen flex">
+            {/* Left Panel - Visual Section */}
+            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 relative overflow-hidden">
+                {/* Animated Background Elements */}
+                <div className="absolute inset-0 opacity-20">
+                    <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full mix-blend-overlay filter blur-3xl animate-blob"></div>
+                    <div className="absolute top-40 right-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-overlay filter blur-3xl animate-blob animation-delay-2000"></div>
+                    <div className="absolute bottom-20 left-40 w-72 h-72 bg-blue-300 rounded-full mix-blend-overlay filter blur-3xl animate-blob animation-delay-4000"></div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                    {/* ... error ... */}
+                {/* Content */}
+                <div className="relative z-10 flex flex-col justify-center items-start p-16 text-white">
+                    <div className="mb-8">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl">
+                                <Package className="w-8 h-8" />
+                            </div>
+                            <h1 className="text-4xl font-bold">QR Package</h1>
+                        </div>
+                        <p className="text-xl text-white/90 leading-relaxed max-w-md">
+                            Gestiona tus paquetes de forma inteligente con tecnología QR
+                        </p>
+                    </div>
+
+                    {/* Feature Cards */}
+                    <div className="space-y-4 mt-12">
+                        <div className="flex items-start gap-4 bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 hover:bg-white/15 transition-all">
+                            <div className="p-2 bg-white/20 rounded-xl">
+                                <Scan className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-lg mb-1">Escaneo Rápido</h3>
+                                <p className="text-white/80 text-sm">Registra y rastrea paquetes al instante</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start gap-4 bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 hover:bg-white/15 transition-all">
+                            <div className="p-2 bg-white/20 rounded-xl">
+                                <TrendingUp className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-lg mb-1">Análisis en Tiempo Real</h3>
+                                <p className="text-white/80 text-sm">Visualiza estadísticas y tendencias</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Right Panel - Login Form */}
+            <div className="flex-1 flex items-center justify-center bg-slate-50 p-8">
+                <div className="w-full max-w-md">
+                    {/* Mobile Logo */}
+                    <div className="lg:hidden flex items-center gap-3 mb-12 justify-center">
+                        <div className="p-3 bg-gradient-to-br from-violet-600 to-indigo-700 rounded-2xl">
+                            <Package className="w-8 h-8 text-white" />
+                        </div>
+                        <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-indigo-700 bg-clip-text text-transparent">
+                            QR Package
+                        </h1>
+                    </div>
+
+                    {/* Header */}
+                    <div className="mb-10">
+                        <h2 className="text-4xl font-bold text-slate-900 mb-2">Bienvenido</h2>
+                        <p className="text-slate-500 text-lg">Inicia sesión para continuar</p>
+                    </div>
+
+                    {/* Error Message */}
                     {error && (
-                        <div className="bg-red-500/10 border border-red-500/50 text-red-200 text-xs p-3 rounded-lg text-center">
-                            {error}
+                        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-xl">
+                            <p className="text-red-700 text-sm font-medium">{error}</p>
                         </div>
                     )}
 
-                    <div className="space-y-1">
-                        <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider ml-1">Email</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all"
-                            placeholder="correo@ejemplo.com"
-                            required
-                        />
-                    </div>
-
-                    <div className="space-y-1">
-                        <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider ml-1">Contraseña</label>
-                        <div className="relative">
+                    {/* Form */}
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Email Input */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-slate-700">
+                                Correo electrónico
+                            </label>
                             <input
-                                type={showPassword ? "text" : "password"}
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500/50 transition-all pr-12"
-                                placeholder="••••••••"
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full px-4 py-4 bg-white border-2 border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all"
+                                placeholder="tu@email.com"
                                 required
                             />
+                        </div>
+
+                        {/* Password Input */}
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-slate-700">
+                                Contraseña
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full px-4 py-4 bg-white border-2 border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 transition-all pr-12"
+                                    placeholder="••••••••"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Forgot Password */}
+                        <div className="flex justify-end">
                             <button
                                 type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                                onClick={() => navigate('/forgot-password')}
+                                className="text-sm font-medium text-violet-600 hover:text-violet-700 transition-colors"
                             >
-                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                ¿Olvidaste tu contraseña?
                             </button>
                         </div>
-                    </div>
 
-                    <div className="text-right">
+                        {/* Submit Button */}
                         <button
-                            type="button"
-                            onClick={() => navigate('/forgot-password')}
-                            className="text-xs text-sky-400 hover:text-sky-300"
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-4 px-6 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl text-white font-bold text-lg shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                         >
-                            ¿Olvidaste tu contraseña?
+                            {loading ? (
+                                <span className="flex items-center justify-center gap-2">
+                                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                    </svg>
+                                    Entrando...
+                                </span>
+                            ) : (
+                                'Iniciar Sesión'
+                            )}
                         </button>
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="mt-4 w-full py-3.5 px-6 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl text-white font-bold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {loading ? 'Entrando...' : 'Iniciar Sesión'}
-                    </button>
-                </form>
+                    </form>
+                </div>
             </div>
+
+            {/* Custom Animations */}
+            <style>{`
+                @keyframes blob {
+                    0%, 100% { transform: translate(0, 0) scale(1); }
+                    33% { transform: translate(30px, -50px) scale(1.1); }
+                    66% { transform: translate(-20px, 20px) scale(0.9); }
+                }
+                .animate-blob {
+                    animation: blob 7s infinite;
+                }
+                .animation-delay-2000 {
+                    animation-delay: 2s;
+                }
+                .animation-delay-4000 {
+                    animation-delay: 4s;
+                }
+            `}</style>
         </div>
     )
 }

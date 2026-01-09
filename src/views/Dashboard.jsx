@@ -1,10 +1,32 @@
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import DashboardLayout from '../components/DashboardLayout'
 import { ROUTES } from '../routes/api'
+import {
+    Scan,
+    History,
+    Package,
+    TrendingUp,
+    Clock,
+    CheckCircle,
+    ArrowRight
+} from 'lucide-react'
 
 export default function Dashboard() {
     const navigate = useNavigate()
     const [user, setUser] = useState(null)
+    const [statsData, setStatsData] = useState({
+        total_scans: 0,
+        active_packages: 0,
+        week_scans: 0,
+        completed_packages: 0
+    })
+    const [recentActivity, setRecentActivity] = useState([])
+    const [monthlyStats, setMonthlyStats] = useState({
+        scans: 0,
+        completed: 0
+    })
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         // Check if user is logged in
@@ -19,106 +41,253 @@ export default function Dashboard() {
         if (userData) {
             setUser(JSON.parse(userData))
         }
+
+        fetchStatistics(token)
     }, [navigate])
 
-    const handleLogout = async () => {
-        const token = localStorage.getItem('token')
+    const fetchStatistics = async (token) => {
         try {
-            await fetch(ROUTES.LOGOUT, {
-                method: 'POST',
+            const response = await fetch(ROUTES.STATISTICS, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json',
-                },
+                    'Accept': 'application/json'
+                }
             })
+
+            if (response.ok) {
+                const data = await response.json()
+                setStatsData(data.stats)
+                setRecentActivity(data.recent_activity)
+                setMonthlyStats(data.monthly)
+            }
         } catch (error) {
-            console.error('Logout error', error)
+            console.error('Error fetching statistics:', error)
         } finally {
-            localStorage.removeItem('token')
-            localStorage.removeItem('user')
-            navigate('/')
+            setLoading(false)
         }
     }
 
-    const menuItems = [
+    const stats = [
         {
-            title: 'Escanear Código',
-            icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75zM16.5 19.5h.75v.75h-.75v-.75z" />
-                </svg>
-            ),
-            action: () => navigate('/scan'),
+            title: 'Total Escaneos',
+            value: statsData.total_scans,
+            change: 'Total',
+            icon: Scan,
             color: 'from-cyan-500 to-blue-500',
+            bgColor: 'bg-cyan-50',
+            iconColor: 'text-cyan-600'
         },
         {
-            title: 'Ver Historial',
-            icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            ),
-            action: () => navigate('/history'),
-            color: 'from-purple-500 to-pink-500',
+            title: 'Paquetes Activos',
+            value: statsData.active_packages,
+            change: 'Actual',
+            icon: Package,
+            color: 'from-violet-500 to-purple-500',
+            bgColor: 'bg-violet-50',
+            iconColor: 'text-violet-600'
         },
         {
-            title: 'Modificar Usuario',
-            icon: (
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                </svg>
-            ),
-            action: () => console.log('Edit User clicked'),
-            color: 'from-orange-500 to-yellow-500',
+            title: 'Esta Semana',
+            value: statsData.week_scans,
+            change: 'Semanal',
+            icon: TrendingUp,
+            color: 'from-green-500 to-emerald-500',
+            bgColor: 'bg-green-50',
+            iconColor: 'text-green-600'
+        },
+        {
+            title: 'Completados',
+            value: statsData.completed_packages,
+            change: 'Histórico',
+            icon: CheckCircle,
+            color: 'from-orange-500 to-amber-500',
+            bgColor: 'bg-orange-50',
+            iconColor: 'text-orange-600'
         },
     ]
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white p-6">
-            <div className="max-w-md mx-auto">
-                <header className="flex justify-between items-center mb-10 pt-4">
-                    <div>
-                        <h1 className="text-2xl font-bold">Dashboard</h1>
-                        <p className="text-slate-400 text-sm">
-                            Hola, <span className="text-cyan-400 font-medium">{user?.name || 'Usuario'}</span>
-                        </p>
-                    </div>
-                    <button
-                        onClick={handleLogout}
-                        className="p-2 bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-400 rounded-lg transition-colors"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-                        </svg>
-                    </button>
-                </header>
+    const quickActions = [
+        {
+            title: 'Escanear Código QR',
+            description: 'Registra un nuevo paquete',
+            icon: Scan,
+            color: 'from-cyan-500 to-blue-500',
+            action: () => navigate('/scan')
+        },
+        {
+            title: 'Ver Historial',
+            description: 'Revisa todos los escaneos',
+            icon: History,
+            color: 'from-purple-500 to-pink-500',
+            action: () => navigate('/history')
+        },
+    ]
 
-                <div className="grid gap-4">
-                    {menuItems.map((item, index) => (
-                        <button
-                            key={index}
-                            onClick={item.action}
-                            className="group relative overflow-hidden bg-white/10 backdrop-blur-md border border-white/10 p-6 rounded-2xl flex items-center gap-5 hover:bg-white/15 transition-all duration-300 hover:scale-[1.02]"
-                        >
-                            <div className={`p-3 rounded-xl bg-gradient-to-br ${item.color} shadow-lg shadow-black/20 group-hover:scale-110 transition-transform duration-300`}>
-                                {item.icon}
+    // Calculate percentages for bars (safe division)
+    const scanPercentage = monthlyStats.scans > 0 ? Math.min(100, (monthlyStats.scans / 50) * 100) : 0
+    const completedPercentage = monthlyStats.completed > 0 ? Math.min(100, (monthlyStats.completed / 50) * 100) : 0
+
+    return (
+        <DashboardLayout>
+            {/* Welcome Section */}
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-slate-900 mb-2">
+                    ¡Hola, {user?.name || 'Usuario'}! 👋
+                </h1>
+                <p className="text-slate-600">
+                    Aquí está un resumen de tu actividad reciente
+                </p>
+            </div>
+
+            {loading ? (
+                <div className="flex justify-center py-20">
+                    <div className="w-12 h-12 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin"></div>
+                </div>
+            ) : (
+                <>
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        {stats.map((stat, index) => {
+                            const Icon = stat.icon
+                            return (
+                                <div
+                                    key={index}
+                                    className="bg-white rounded-2xl p-6 border border-slate-200 hover:shadow-lg transition-all hover:scale-[1.02]"
+                                >
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className={`p-3 ${stat.bgColor} rounded-xl`}>
+                                            <Icon className={`w-6 h-6 ${stat.iconColor}`} />
+                                        </div>
+                                        <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded-lg">
+                                            {stat.change}
+                                        </span>
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-slate-900 mb-1">
+                                        {stat.value}
+                                    </h3>
+                                    <p className="text-sm text-slate-600">{stat.title}</p>
+                                </div>
+                            )
+                        })}
+                    </div>
+
+                    <div className="grid lg:grid-cols-3 gap-6">
+                        {/* Quick Actions */}
+                        <div className="lg:col-span-2 space-y-4">
+                            <h2 className="text-xl font-bold text-slate-900 mb-4">Acciones Rápidas</h2>
+                            <div className="grid md:grid-cols-2 gap-4">
+                                {quickActions.map((action, index) => {
+                                    const Icon = action.icon
+                                    return (
+                                        <button
+                                            key={index}
+                                            onClick={action.action}
+                                            className="group bg-white rounded-2xl p-6 border border-slate-200 hover:shadow-xl transition-all hover:scale-[1.02] text-left"
+                                        >
+                                            <div className={`inline-flex p-3 bg-gradient-to-br ${action.color} rounded-xl mb-4 group-hover:scale-110 transition-transform`}>
+                                                <Icon className="w-6 h-6 text-white" />
+                                            </div>
+                                            <h3 className="text-lg font-bold text-slate-900 mb-1">
+                                                {action.title}
+                                            </h3>
+                                            <p className="text-sm text-slate-600 mb-4">
+                                                {action.description}
+                                            </p>
+                                            <div className="flex items-center gap-2 text-violet-600 font-medium text-sm group-hover:gap-3 transition-all">
+                                                <span>Ir ahora</span>
+                                                <ArrowRight className="w-4 h-4" />
+                                            </div>
+                                        </button>
+                                    )
+                                })}
                             </div>
-                            <div className="text-left">
-                                <h3 className="text-lg font-bold">{item.title}</h3>
-                                <p className="text-xs text-slate-400 font-medium tracking-wide opacity-80">
-                                    Acceder a la función
+
+                            {/* Recent Activity */}
+                            <div className="bg-white rounded-2xl p-6 border border-slate-200 mt-6">
+                                <h3 className="text-lg font-bold text-slate-900 mb-4">Actividad Reciente</h3>
+                                {recentActivity.length > 0 ? (
+                                    <div className="space-y-3">
+                                        {recentActivity.map((activity) => (
+                                            <div
+                                                key={activity.id}
+                                                className="flex items-center gap-4 p-3 hover:bg-slate-50 rounded-xl transition-colors"
+                                            >
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${activity.status === 'success' ? 'bg-green-100' : 'bg-yellow-100'
+                                                    }`}>
+                                                    <Package className={`w-5 h-5 ${activity.status === 'success' ? 'text-green-600' : 'text-yellow-600'
+                                                        }`} />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="font-semibold text-slate-900 text-sm">
+                                                        {activity.package}
+                                                    </p>
+                                                    <p className="text-xs text-slate-600">{activity.action}</p>
+                                                </div>
+                                                <div className="flex items-center gap-1 text-slate-500">
+                                                    <Clock className="w-4 h-4" />
+                                                    <span className="text-xs">{activity.time}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-8 text-slate-500">
+                                        No hay actividad reciente
+                                    </div>
+                                )}
+                                <button
+                                    onClick={() => navigate('/history')}
+                                    className="w-full mt-4 py-2 text-sm font-medium text-violet-600 hover:text-violet-700 transition-colors"
+                                >
+                                    Ver todo el historial →
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Tips & Info */}
+                        <div className="space-y-4">
+                            <h2 className="text-xl font-bold text-slate-900 mb-4">Consejos</h2>
+
+                            <div className="bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl p-6 text-white">
+                                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mb-4">
+                                    <Scan className="w-6 h-6" />
+                                </div>
+                                <h3 className="font-bold text-lg mb-2">¿Sabías que?</h3>
+                                <p className="text-white/90 text-sm leading-relaxed">
+                                    Puedes escanear múltiples códigos QR de forma consecutiva sin salir de la pantalla de escaneo.
                                 </p>
                             </div>
-                            <div className="absolute right-4 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-4 group-hover:translate-x-0 duration-300">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5 text-white/50">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                                </svg>
+
+                            <div className="bg-white rounded-2xl p-6 border border-slate-200">
+                                <h3 className="font-bold text-slate-900 mb-3">Estadísticas del Mes</h3>
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-sm text-slate-600">Escaneos</span>
+                                        <span className="font-bold text-slate-900">{monthlyStats.scans}</span>
+                                    </div>
+                                    <div className="w-full bg-slate-100 rounded-full h-2">
+                                        <div
+                                            className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full transition-all duration-1000"
+                                            style={{ width: `${scanPercentage}%` }}
+                                        ></div>
+                                    </div>
+
+                                    <div className="flex justify-between items-center mt-4">
+                                        <span className="text-sm text-slate-600">Completados</span>
+                                        <span className="font-bold text-slate-900">{monthlyStats.completed}</span>
+                                    </div>
+                                    <div className="w-full bg-slate-100 rounded-full h-2">
+                                        <div
+                                            className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-1000"
+                                            style={{ width: `${completedPercentage}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
                             </div>
-                        </button>
-                    ))}
-                </div>
-            </div>
-        </div>
+                        </div>
+                    </div>
+                </>
+            )}
+        </DashboardLayout>
     )
 }
