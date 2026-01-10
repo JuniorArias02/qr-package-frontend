@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
-import { ROUTES } from '../routes/api'
+import PackageService from '../services/package.service'
+import { formatDate } from '../utils/dateUtils'
 import DashboardLayout from '../components/DashboardLayout'
 import {
     Search,
@@ -37,23 +38,11 @@ export default function History() {
 
     const fetchPackages = async () => {
         try {
-            const token = localStorage.getItem('token')
-            const response = await fetch(ROUTES.PACKAGES, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json'
-                }
-            })
-
-            if (response.ok) {
-                const data = await response.json()
-                setPackages(data)
-            } else {
-                setError('Error al cargar el historial')
-            }
+            const data = await PackageService.getAll()
+            setPackages(data)
         } catch (err) {
             console.error(err)
-            setError('Error de conexión')
+            setError('Error al cargar el historial')
         } finally {
             setLoading(false)
         }
@@ -218,11 +207,7 @@ export default function History() {
                                         </div>
                                         <div className="flex items-center gap-1.5">
                                             <Calendar className="w-3.5 h-3.5" />
-                                            <span>{new Date(pkg.created_at).toLocaleDateString('es-ES', {
-                                                day: 'numeric',
-                                                month: 'short',
-                                                year: 'numeric'
-                                            })}</span>
+                                            <span>{formatDate(pkg.created_at, 'short')}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -331,12 +316,7 @@ export default function History() {
                                         <div className="flex-1">
                                             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Fecha de Registro</p>
                                             <p className="text-slate-900">
-                                                {new Date(selectedPackage.created_at).toLocaleDateString('es-ES', {
-                                                    weekday: 'long',
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric'
-                                                })}
+                                                {formatDate(selectedPackage.created_at, 'long')}
                                             </p>
                                         </div>
                                     </div>

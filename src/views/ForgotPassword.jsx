@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ROUTES } from '../routes/api'
+import AuthService from '../services/auth.service'
 import { Eye, EyeOff, Package, Mail, Lock, CheckCircle, ArrowLeft } from 'lucide-react'
 
 export default function ForgotPassword() {
@@ -21,20 +21,12 @@ export default function ForgotPassword() {
         setLoading(true)
         setError('')
         try {
-            const response = await fetch(ROUTES.FORGOT_PASSWORD, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ email })
-            })
-            const data = await response.json()
-            if (response.ok) {
-                setMessage(data.message)
-                setStep(2)
-            } else {
-                setError(data.message || 'Error al enviar el código')
-            }
+            const data = await AuthService.requestPasswordReset(email)
+            setMessage(data.message)
+            setStep(2)
         } catch (err) {
-            setError('Error de conexión')
+            const message = err.response?.data?.message || 'Error al enviar el código'
+            setError(message)
         } finally {
             setLoading(false)
         }
@@ -45,20 +37,12 @@ export default function ForgotPassword() {
         setLoading(true)
         setError('')
         try {
-            const response = await fetch(ROUTES.VERIFY_CODE, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ email, code })
-            })
-            const data = await response.json()
-            if (response.ok) {
-                setMessage(data.message)
-                setStep(3)
-            } else {
-                setError(data.message || 'Código inválido')
-            }
+            const data = await AuthService.verifyCode(email, code)
+            setMessage(data.message)
+            setStep(3)
         } catch (err) {
-            setError('Error de conexión')
+            const message = err.response?.data?.message || 'Código inválido'
+            setError(message)
         } finally {
             setLoading(false)
         }
@@ -73,20 +57,12 @@ export default function ForgotPassword() {
         setLoading(true)
         setError('')
         try {
-            const response = await fetch(ROUTES.RESET_PASSWORD, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify({ email, code, password, password_confirmation: passwordConfirm })
-            })
-            const data = await response.json()
-            if (response.ok) {
-                setMessage('¡Contraseña actualizada! Redirigiendo...')
-                setTimeout(() => navigate('/'), 2000)
-            } else {
-                setError(data.message || 'Error al cambiar la contraseña')
-            }
+            await AuthService.resetPassword(email, code, password, passwordConfirm)
+            setMessage('¡Contraseña actualizada! Redirigiendo...')
+            setTimeout(() => navigate('/'), 2000)
         } catch (err) {
-            setError('Error de conexión')
+            const message = err.response?.data?.message || 'Error al cambiar la contraseña'
+            setError(message)
         } finally {
             setLoading(false)
         }
@@ -133,8 +109,8 @@ export default function ForgotPassword() {
                             return (
                                 <div key={s.number} className="flex items-center gap-4">
                                     <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all ${isCompleted ? 'bg-green-500/30 border-2 border-green-400' :
-                                            isActive ? 'bg-white/30 border-2 border-white' :
-                                                'bg-white/10 border-2 border-white/20'
+                                        isActive ? 'bg-white/30 border-2 border-white' :
+                                            'bg-white/10 border-2 border-white/20'
                                         }`}>
                                         {isCompleted ? (
                                             <CheckCircle className="w-6 h-6 text-green-300" />

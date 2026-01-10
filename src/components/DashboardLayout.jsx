@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import AuthService from '../services/auth.service'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
     Package,
@@ -22,20 +23,11 @@ export default function DashboardLayout({ children }) {
     })
 
     const handleLogout = async () => {
-        const token = localStorage.getItem('token')
         try {
-            await fetch(import.meta.env.VITE_API_URL + '/logout', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json',
-                },
-            })
+            await AuthService.logout()
         } catch (error) {
             console.error('Logout error', error)
         } finally {
-            localStorage.removeItem('token')
-            localStorage.removeItem('user')
             navigate('/')
         }
     }
@@ -99,8 +91,8 @@ export default function DashboardLayout({ children }) {
                                 key={item.path}
                                 onClick={() => navigate(item.path)}
                                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${active
-                                        ? 'bg-violet-50 text-violet-700'
-                                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                    ? 'bg-violet-50 text-violet-700'
+                                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                                     }`}
                             >
                                 <Icon className={`w-5 h-5 ${active ? item.color : 'text-slate-400 group-hover:text-slate-600'}`} />
@@ -182,8 +174,8 @@ export default function DashboardLayout({ children }) {
                                             setSidebarOpen(false)
                                         }}
                                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${active
-                                                ? 'bg-violet-50 text-violet-700'
-                                                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                            ? 'bg-violet-50 text-violet-700'
+                                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                                             }`}
                                     >
                                         <Icon className={`w-5 h-5 ${active ? item.color : 'text-slate-400 group-hover:text-slate-600'}`} />

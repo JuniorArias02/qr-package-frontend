@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Scanner } from '@yudiel/react-qr-scanner'
 import { useNavigate } from 'react-router-dom'
-import { ROUTES } from '../routes/api'
+import PackageService from '../services/package.service'
 import DashboardLayout from '../components/DashboardLayout'
 import {
     Scan as ScanIcon,
@@ -42,17 +42,7 @@ export default function Scan() {
         setFormData(prev => ({ ...prev, referencia_qr: text }))
 
         try {
-            const token = localStorage.getItem('token')
-            const response = await fetch(ROUTES.PACKAGES_CHECK_QR, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ referencia_qr: text })
-            })
-            const data = await response.json()
+            const data = await PackageService.checkQR(text)
 
             if (data.exists) {
                 setExists(true)
@@ -75,28 +65,13 @@ export default function Scan() {
         setError('')
 
         try {
-            const token = localStorage.getItem('token')
-            const response = await fetch(ROUTES.PACKAGES, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            })
-
-            if (response.ok) {
-                const newPackage = await response.json()
-                setPackageData(newPackage)
-                setExists(true) // Now it exists
-            } else {
-                const data = await response.json()
-                setError(data.message || 'Error al registrar el paquete')
-            }
+            const newPackage = await PackageService.create(formData)
+            setPackageData(newPackage)
+            setExists(true) // Now it exists
         } catch (err) {
             console.error(err)
-            setError('Error de conexión')
+            const message = err.response?.data?.message || 'Error al registrar el paquete'
+            setError(message)
         } finally {
             setLoading(false)
         }
@@ -131,8 +106,8 @@ export default function Scan() {
                     <button
                         onClick={toggleCamera}
                         className={`p-3 rounded-xl transition-all ${scanning
-                                ? 'bg-red-100 text-red-600 hover:bg-red-200'
-                                : 'bg-violet-100 text-violet-600 hover:bg-violet-200'
+                            ? 'bg-red-100 text-red-600 hover:bg-red-200'
+                            : 'bg-violet-100 text-violet-600 hover:bg-violet-200'
                             }`}
                     >
                         {scanning ? <CameraOff className="w-5 h-5" /> : <Camera className="w-5 h-5" />}
@@ -152,8 +127,8 @@ export default function Scan() {
                                 ¡Paquete Encontrado!
                             </h2>
                             <span className={`inline-block px-4 py-1.5 rounded-full text-sm font-semibold mb-8 ${packageData.estado === 'Entregado' ? 'bg-green-100 text-green-700' :
-                                    packageData.estado === 'En tránsito' ? 'bg-yellow-100 text-yellow-700' :
-                                        'bg-violet-100 text-violet-700'
+                                packageData.estado === 'En tránsito' ? 'bg-yellow-100 text-yellow-700' :
+                                    'bg-violet-100 text-violet-700'
                                 }`}>
                                 {packageData.estado}
                             </span>

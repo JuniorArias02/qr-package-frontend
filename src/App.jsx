@@ -3,6 +3,7 @@ import Login from './views/Login'
 import Dashboard from './views/Dashboard'
 import Scan from './views/Scan'
 import History from './views/History'
+import Profile from './views/Profile'
 import ForgotPassword from './views/ForgotPassword'
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/scan" element={<Scan />} />
         <Route path="/history" element={<History />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </BrowserRouter>

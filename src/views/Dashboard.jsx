@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import DashboardLayout from '../components/DashboardLayout'
-import { ROUTES } from '../routes/api'
+import { formatDate } from '../utils/dateUtils'
+import StatisticsService from '../services/statistics.service'
 import {
     Scan,
     History,
@@ -42,24 +43,15 @@ export default function Dashboard() {
             setUser(JSON.parse(userData))
         }
 
-        fetchStatistics(token)
+        fetchStatistics()
     }, [navigate])
 
-    const fetchStatistics = async (token) => {
+    const fetchStatistics = async () => {
         try {
-            const response = await fetch(ROUTES.STATISTICS, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json'
-                }
-            })
-
-            if (response.ok) {
-                const data = await response.json()
-                setStatsData(data.stats)
-                setRecentActivity(data.recent_activity)
-                setMonthlyStats(data.monthly)
-            }
+            const data = await StatisticsService.getDashboardStats()
+            setStatsData(data.stats)
+            setRecentActivity(data.recent_activity)
+            setMonthlyStats(data.monthly)
         } catch (error) {
             console.error('Error fetching statistics:', error)
         } finally {
@@ -225,7 +217,7 @@ export default function Dashboard() {
                                                 </div>
                                                 <div className="flex items-center gap-1 text-slate-500">
                                                     <Clock className="w-4 h-4" />
-                                                    <span className="text-xs">{activity.time}</span>
+                                                    <span className="text-xs">{formatDate(activity.time, 'relative')}</span>
                                                 </div>
                                             </div>
                                         ))}

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ROUTES } from '../routes/api'
+import AuthService from '../services/auth.service'
 import { Eye, EyeOff, Package, Scan, TrendingUp } from 'lucide-react'
 
 export default function Login() {
@@ -17,27 +17,13 @@ export default function Login() {
         setLoading(true)
 
         try {
-            const response = await fetch(ROUTES.LOGIN, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            })
-
-            const data = await response.json()
-
-            if (response.ok) {
-                localStorage.setItem('token', data.access_token)
-                localStorage.setItem('user', JSON.stringify(data.user))
-                navigate('/dashboard')
-            } else {
-                setError(data.message || 'Error al iniciar sesión')
-            }
+            await AuthService.login(email, password)
+            // AuthService handles localStorage setting
+            navigate('/dashboard')
         } catch (err) {
-            setError('Error de conexión con el servidor')
             console.error(err)
+            const message = err.response?.data?.message || 'Error al iniciar sesión'
+            setError(message)
         } finally {
             setLoading(false)
         }
