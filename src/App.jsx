@@ -7,19 +7,25 @@ import Scan from './views/Scan'
 import History from './views/History'
 import Profile from './views/Profile'
 import ForgotPassword from './views/ForgotPassword'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        {/* Public Register - hidden from UI but accessible */}
         <Route path="/register" element={<Register />} />
-        <Route path="/users/create" element={<CreateUser />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/scan" element={<Scan />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/profile" element={<Profile />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+
+        {/* Protected Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/users/create" element={<CreateUser />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/scan" element={<Scan />} />
+          <Route path="/history" element={<History />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   )
