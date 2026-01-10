@@ -118,56 +118,56 @@ export default function Scan() {
 
                     {/* CONFIRMED PACKAGE VIEW */}
                     {!scanning && !loading && exists && packageData && (
-                        <div className="p-8 text-center animate-fadeIn">
-                            <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <CheckCircle className="w-12 h-12 text-green-600" />
+                        <div className="p-5 md:p-8 text-center animate-fadeIn">
+                            <div className="w-20 h-20 md:w-24 md:h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <CheckCircle className="w-10 h-10 md:w-12 md:h-12 text-green-600" />
                             </div>
 
-                            <h2 className="text-2xl font-bold text-slate-900 mb-2">
+                            <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-2">
                                 ¡Paquete Encontrado!
                             </h2>
-                            <span className={`inline-block px-4 py-1.5 rounded-full text-sm font-semibold mb-8 ${packageData.estado === 'Entregado' ? 'bg-green-100 text-green-700' :
+                            <span className={`inline-block px-4 py-1.5 rounded-full text-sm font-semibold mb-6 md:mb-8 ${packageData.estado === 'Entregado' ? 'bg-green-100 text-green-700' :
                                 packageData.estado === 'En tránsito' ? 'bg-yellow-100 text-yellow-700' :
                                     'bg-violet-100 text-violet-700'
                                 }`}>
                                 {packageData.estado}
                             </span>
 
-                            <div className="bg-slate-50 rounded-2xl p-6 text-left space-y-4 mb-8 border border-slate-100">
-                                <div className="flex items-start gap-4">
-                                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                            <div className="bg-slate-50 rounded-2xl p-4 md:p-6 text-left space-y-4 mb-6 md:mb-8 border border-slate-100">
+                                <div className="flex items-start gap-3 md:gap-4">
+                                    <div className="p-2 bg-white rounded-lg shadow-sm shrink-0">
                                         <Package className="w-5 h-5 text-violet-600" />
                                     </div>
-                                    <div>
+                                    <div className="min-w-0 flex-1">
                                         <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Código</p>
-                                        <p className="font-mono font-medium text-slate-900">{packageData.referencia_qr}</p>
+                                        <p className="font-mono font-medium text-slate-900 break-all">{packageData.referencia_qr}</p>
                                     </div>
                                 </div>
                                 <div className="h-px bg-slate-200"></div>
-                                <div className="flex items-start gap-4">
-                                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                                <div className="flex items-start gap-3 md:gap-4">
+                                    <div className="p-2 bg-white rounded-lg shadow-sm shrink-0">
                                         <User className="w-5 h-5 text-violet-600" />
                                     </div>
-                                    <div>
+                                    <div className="min-w-0 flex-1">
                                         <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Destinatario</p>
-                                        <p className="font-medium text-slate-900">{packageData.nombre_receptor}</p>
+                                        <p className="font-medium text-slate-900 break-words">{packageData.nombre_receptor}</p>
                                     </div>
                                 </div>
                                 <div className="h-px bg-slate-200"></div>
-                                <div className="flex items-start gap-4">
-                                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                                <div className="flex items-start gap-3 md:gap-4">
+                                    <div className="p-2 bg-white rounded-lg shadow-sm shrink-0">
                                         <MapPin className="w-5 h-5 text-violet-600" />
                                     </div>
-                                    <div>
+                                    <div className="min-w-0 flex-1">
                                         <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Dirección</p>
-                                        <p className="text-slate-600">{packageData.direccion}</p>
+                                        <p className="text-slate-600 break-words text-sm md:text-base">{packageData.direccion}</p>
                                     </div>
                                 </div>
                             </div>
 
                             <button
                                 onClick={resetScan}
-                                className="w-full py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+                                className="w-full py-3.5 md:py-4 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold transition-all hover:scale-[1.02] flex items-center justify-center gap-2 active:scale-95"
                             >
                                 <ScanIcon className="w-5 h-5" />
                                 Escanear Otro
