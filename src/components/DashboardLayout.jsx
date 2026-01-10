@@ -10,7 +10,8 @@ import {
     LogOut,
     Menu,
     X,
-    ChevronRight
+    ChevronRight,
+    UserPlus
 } from 'lucide-react'
 
 export default function DashboardLayout({ children }) {
@@ -37,25 +38,36 @@ export default function DashboardLayout({ children }) {
             name: 'Dashboard',
             icon: LayoutDashboard,
             path: '/dashboard',
-            color: 'text-violet-500'
+            color: 'text-violet-500',
+            roles: ['admin', 'repartidor', 'usuario']
         },
         {
             name: 'Escanear',
             icon: Scan,
             path: '/scan',
-            color: 'text-cyan-500'
+            color: 'text-cyan-500',
+            roles: ['admin', 'repartidor', 'usuario']
         },
         {
             name: 'Historial',
             icon: History,
             path: '/history',
-            color: 'text-purple-500'
+            color: 'text-purple-500',
+            roles: ['admin', 'repartidor', 'usuario']
+        },
+        {
+            name: 'Crear Usuario',
+            icon: UserPlus,
+            path: '/users/create',
+            color: 'text-green-500',
+            roles: ['admin']
         },
         {
             name: 'Perfil',
             icon: User,
             path: '/profile',
-            color: 'text-orange-500'
+            color: 'text-orange-500',
+            roles: ['admin', 'repartidor', 'usuario']
         },
     ]
 
@@ -82,7 +94,7 @@ export default function DashboardLayout({ children }) {
 
                 {/* Navigation */}
                 <nav className="flex-1 p-4 space-y-1">
-                    {menuItems.map((item) => {
+                    {menuItems.filter(item => item.roles.includes(user?.rol)).map((item) => {
                         const Icon = item.icon
                         const active = isActive(item.path)
 
@@ -162,7 +174,7 @@ export default function DashboardLayout({ children }) {
 
                         {/* Navigation */}
                         <nav className="flex-1 p-4 space-y-1">
-                            {menuItems.map((item) => {
+                            {menuItems.filter(item => item.roles.includes(user?.rol)).map((item) => {
                                 const Icon = item.icon
                                 const active = isActive(item.path)
 

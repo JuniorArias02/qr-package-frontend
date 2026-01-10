@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import AuthService from '../services/auth.service'
 import { Eye, EyeOff, Package, Scan, TrendingUp } from 'lucide-react'
 
@@ -146,11 +146,14 @@ export default function Login() {
                         </div>
 
                         {/* Forgot Password */}
-                        <div className="flex justify-end">
+                        <div className="flex justify-end items-center text-sm">
+                            {/* <Link to="/register" className="font-medium text-violet-600 hover:text-violet-700 transition-colors">
+                                Crear una cuenta
+                            </Link> */}
                             <button
                                 type="button"
                                 onClick={() => navigate('/forgot-password')}
-                                className="text-sm font-medium text-violet-600 hover:text-violet-700 transition-colors"
+                                className="font-medium text-slate-500 hover:text-slate-700 transition-colors"
                             >
                                 ¿Olvidaste tu contraseña?
                             </button>

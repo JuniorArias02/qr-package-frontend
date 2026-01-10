@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Login from './views/Login'
+import Register from './views/Register'
+import CreateUser from './views/CreateUser'
 import Dashboard from './views/Dashboard'
 import Scan from './views/Scan'
 import History from './views/History'
@@ -11,6 +13,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/users/create" element={<CreateUser />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/scan" element={<Scan />} />
         <Route path="/history" element={<History />} />

@@ -10,13 +10,26 @@ const AuthService = {
         return response.data
     },
 
-    register: async (ticket_code, name, email, password, role = 'receptionist') => {
+    register: async (name, email, password, password_confirmation, rol = 'usuario', codigo_personal = '') => {
         const response = await api.post('/register', {
-            ticket_code,
             name,
             email,
             password,
-            role
+            password_confirmation,
+            rol,
+            codigo_personal
+        })
+        return response.data
+    },
+
+    createUser: async (name, email, password, password_confirmation, rol = 'usuario', codigo_personal = '') => {
+        const response = await api.post('/users', {
+            name,
+            email,
+            password,
+            password_confirmation,
+            rol,
+            codigo_personal
         })
         return response.data
     },
