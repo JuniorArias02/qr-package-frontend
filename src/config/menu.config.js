@@ -1,0 +1,109 @@
+import {
+    LayoutDashboard,
+    Scan,
+    ClipboardList,
+    Users,
+    UserPlus,
+    Truck,
+    History,
+    BarChart,
+    User,
+    Settings,
+    Map
+} from 'lucide-react'
+import { UserRole } from '../types/auth.types'
+
+export const menuConfig = {
+    [UserRole.ADMIN]: [
+        {
+            name: 'Dashboard',
+            icon: LayoutDashboard,
+            path: '/admin/dashboard',
+            color: 'text-violet-500'
+        },
+        {
+            name: 'Coordinators',
+            icon: UserPlus,
+            path: '/admin/coordinators',
+            color: 'text-indigo-500'
+        },
+        {
+            name: 'System Reports',
+            icon: BarChart,
+            path: '/reports',
+            color: 'text-pink-500'
+        }
+    ],
+    [UserRole.COORDINATOR]: [
+        {
+            name: 'Dashboard',
+            icon: LayoutDashboard,
+            path: '/coordinator/dashboard',
+            color: 'text-violet-500'
+        },
+        {
+            name: 'Scanning',
+            icon: Scan,
+            path: '/coordinator/scan',
+            color: 'text-cyan-500'
+        },
+        {
+            name: 'Assignments',
+            icon: ClipboardList,
+            path: '/coordinator/assignments',
+            color: 'text-blue-500'
+        },
+        {
+            name: 'Drivers',
+            icon: Users,
+            path: '/coordinator/drivers',
+            color: 'text-amber-500'
+        },
+        {
+            name: 'Route Planning',
+            icon: Map,
+            path: '/coordinator/routes',
+            color: 'text-emerald-500'
+        },
+        {
+            name: 'Fleet Stats',
+            icon: BarChart,
+            path: '/reports',
+            color: 'text-pink-500'
+        }
+    ],
+    [UserRole.DRIVER]: [
+        {
+            name: 'Dashboard',
+            icon: LayoutDashboard,
+            path: '/driver/dashboard',
+            color: 'text-violet-500'
+        },
+        {
+            name: 'My Deliveries',
+            icon: Truck,
+            path: '/driver/deliveries',
+            color: 'text-emerald-500'
+        },
+        {
+            name: 'Delivery History',
+            icon: History,
+            path: '/driver/history',
+            color: 'text-slate-500'
+        }
+    ],
+    // Common items for all roles (optional, can be merged in layout)
+    common: [
+        {
+            name: 'Profile',
+            icon: User,
+            path: '/profile',
+            color: 'text-orange-500'
+        }
+    ]
+}
+
+export const getMenuItems = (role) => {
+    const roleMenu = menuConfig[role] || []
+    return [...roleMenu, ...menuConfig.common]
+}
