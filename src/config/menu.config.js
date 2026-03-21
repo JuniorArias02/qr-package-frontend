@@ -9,12 +9,47 @@ import {
     BarChart,
     User,
     Settings,
-    Map
+    Map,
+    Building2,
+    Globe,
+    ShieldCheck
 } from 'lucide-react'
 import { UserRole } from '../types/auth.types'
 
 export const menuConfig = {
-    [UserRole.ADMIN]: [
+    [UserRole.SUPER_ADMIN]: [
+        {
+            name: 'Panel Global',
+            icon: Globe,
+            path: '/super-admin/dashboard',
+            color: 'text-violet-500'
+        },
+        {
+            name: 'Empresas',
+            icon: Building2,
+            path: '/super-admin/companies',
+            color: 'text-indigo-500'
+        },
+        {
+            name: 'Usuarios',
+            icon: Users,
+            path: '/super-admin/users',
+            color: 'text-cyan-500'
+        },
+        {
+            name: 'Entregas Globales',
+            icon: Truck,
+            path: '/super-admin/deliveries',
+            color: 'text-amber-500'
+        },
+        {
+            name: 'Configuración',
+            icon: Settings,
+            path: '/super-admin/settings',
+            color: 'text-slate-500'
+        }
+    ],
+    [UserRole.COMPANY_ADMIN]: [
         {
             name: 'Dashboard',
             icon: LayoutDashboard,
@@ -68,14 +103,14 @@ export const menuConfig = {
         {
             name: 'Fleet Stats',
             icon: BarChart,
-            path: '/reports',
+            path: '/coordinator/reports',
             color: 'text-pink-500'
         }
     ],
     [UserRole.DRIVER]: [
         {
-            name: 'Dashboard',
-            icon: LayoutDashboard,
+            name: 'Performance',
+            icon: BarChart,
             path: '/driver/dashboard',
             color: 'text-violet-500'
         },
@@ -92,7 +127,7 @@ export const menuConfig = {
             color: 'text-slate-500'
         }
     ],
-    // Common items for all roles (optional, can be merged in layout)
+    // Common items for all roles
     common: [
         {
             name: 'Profile',

@@ -16,6 +16,11 @@ class DriverService {
         const response = await api.get('/v1/delivery/history')
         return response.data
     }
+
+    async getDashboardAnalytics(): Promise<any> {
+        const response = await api.get('/v1/driver/analytics/dashboard')
+        return response.data
+    }
 }
 
 export default new DriverService()

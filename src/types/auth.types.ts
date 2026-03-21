@@ -1,8 +1,8 @@
 export enum UserRole {
-    ADMIN = 'admin',
+    SUPER_ADMIN = 'super_admin',
+    COMPANY_ADMIN = 'company_admin',
     COORDINATOR = 'coordinator',
     DRIVER = 'driver',
-    REPORTER = 'reporter'
 }
 
 export enum UserPermission {

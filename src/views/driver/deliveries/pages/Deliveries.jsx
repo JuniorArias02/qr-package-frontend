@@ -74,15 +74,18 @@ export default function Deliveries() {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     })
 
-    const getStatusBadge = (status) => {
-        switch (status) {
-            case 'Entregado':
-                return <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Delivered</span>
-            case 'No entregado':
-                return <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold flex items-center gap-1"><XCircle className="w-3 h-3" /> Failed</span>
-            default:
-                return <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-bold flex items-center gap-1"><Clock className="w-3 h-3" /> Pending</span>
+    const getStatusBadge = (delivery) => {
+        const { status, observation } = delivery
+        
+        if (status === 'delivered' || status === 'Entregado') {
+            return <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Delivered</span>
         }
+        
+        if (observation) {
+            return <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold flex items-center gap-1"><XCircle className="w-3 h-3" /> Failed</span>
+        }
+
+        return <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-bold flex items-center gap-1"><Clock className="w-3 h-3" /> Pending</span>
     }
 
     return (
@@ -164,7 +167,7 @@ export default function Deliveries() {
                                         <div>
                                             <div className="flex items-center gap-2 mb-1">
                                                 <span className="font-mono font-bold text-lg text-slate-900">{delivery.package?.package_reference}</span>
-                                                {getStatusBadge(delivery.status)}
+                                                {getStatusBadge(delivery)}
                                             </div>
                                             <div className="flex items-center gap-1.5 text-sm text-slate-500">
                                                 <Clock className="w-3.5 h-3.5" />

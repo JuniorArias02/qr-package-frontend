@@ -10,7 +10,9 @@ const DashboardRedirect = () => {
     if (!isAuthenticated) return <Navigate to="/login" replace />;
 
     switch (user?.role) {
-        case UserRole.ADMIN:
+        case UserRole.SUPER_ADMIN:
+            return <Navigate to="/super-admin/companies" replace />;
+        case UserRole.COMPANY_ADMIN:
             return <Navigate to="/admin/dashboard" replace />;
         case UserRole.COORDINATOR:
             return <Navigate to="/coordinator/dashboard" replace />;

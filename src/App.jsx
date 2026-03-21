@@ -20,6 +20,7 @@ import Drivers from './views/coordinator/drivers/pages/Drivers';
 import DriversForm from './views/coordinator/drivers/pages/DriversForm';
 import Scan from './views/coordinator/packages/pages/Scan';
 import Assignments from './views/coordinator/packages/pages/Assignments';
+import ReportsDashboard from './views/coordinator/reports/pages/ReportsDashboard';
 
 // DRIVER MODULE
 import DriverDashboard from './views/driver/dashboard/pages/Dashboard';
@@ -29,6 +30,15 @@ import DriverScanDelivery from './views/driver/deliveries/pages/ScanDelivery';
 
 // PROFILE
 import MyAccount from './views/myProfile/pages/MyAccount';
+
+// SUPER ADMIN MODULE
+import CompanyFormList from './views/superAdmin/company/page/CompanyFormList';
+import CompanyForm from './views/superAdmin/company/page/CompanyForm';
+import CompanyGeneralDetail from './views/superAdmin/company/page/CompanyGeneralDetail';
+import SuperAdminDashboard from './views/superAdmin/dashboard/pages/Dashboard';
+import UserGlobal from './views/superAdmin/userGlobal/pages/UserGlobal';
+import UserGlobalForm from './views/superAdmin/userGlobal/pages/UserGlobalForm';
+import GlobalDeliveries from './views/superAdmin/deliveriesGlobal/pages/GlobalDeliveries';
 
 import DashboardRedirect from './components/DashboardRedirect';
 
@@ -49,8 +59,21 @@ function App() {
                     {/* PROTECTED ROUTES */}
                     <Route element={<ProtectedRoute />}>
 
+                        {/* SUPER ADMIN ROUTES */}
+                        <Route element={<RoleBasedRoute allowedRoles={[UserRole.SUPER_ADMIN]} />}>
+                            <Route path="/super-admin/dashboard" element={<SuperAdminDashboard />} />
+                            <Route path="/super-admin/companies" element={<CompanyFormList />} />
+                            <Route path="/super-admin/companies/new" element={<CompanyForm />} />
+                            <Route path="/super-admin/companies/:id/edit" element={<CompanyForm />} />
+                            <Route path="/super-admin/companies/:id/detail" element={<CompanyGeneralDetail />} />
+                            <Route path="/super-admin/users" element={<UserGlobal />} />
+                            <Route path="/super-admin/users/new" element={<UserGlobalForm />} />
+                            <Route path="/super-admin/users/:id/edit" element={<UserGlobalForm />} />
+                            <Route path="/super-admin/deliveries" element={<GlobalDeliveries />} />
+                        </Route>
+
                         {/* ADMIN ROUTES */}
-                        <Route element={<RoleBasedRoute allowedRoles={[UserRole.ADMIN]} />}>
+                        <Route element={<RoleBasedRoute allowedRoles={[UserRole.COMPANY_ADMIN]} />}>
                             <Route path="/admin/dashboard" element={<AdminDashboard />} />
                             <Route path="/admin/coordinators" element={<Coordinators />} />
                             <Route path="/admin/coordinators/new" element={<CoordinatorsForm />} />
@@ -65,6 +88,7 @@ function App() {
                             <Route path="/coordinator/drivers/:id/edit" element={<DriversForm />} />
                             <Route path="/coordinator/scan" element={<Scan />} />
                             <Route path="/coordinator/assignments" element={<Assignments />} />
+                            <Route path="/coordinator/reports" element={<ReportsDashboard />} />
                         </Route>
 
                         {/* DRIVER ROUTES */}

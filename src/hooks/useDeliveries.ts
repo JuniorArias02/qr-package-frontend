@@ -14,8 +14,8 @@ export const useDeliveries = () => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    const fetchMyDeliveries = useCallback(async () => {
-        setLoading(true)
+    const fetchMyDeliveries = useCallback(async (showLoading = true) => {
+        if (showLoading) setLoading(true)
         setError(null)
         try {
             const data = await deliveryService.getMyDeliveries()
@@ -24,20 +24,18 @@ export const useDeliveries = () => {
         } catch (err: any) {
             setError(err.message || 'Error loading deliveries')
         } finally {
-            setLoading(false)
+            if (showLoading) setLoading(false)
         }
     }, [])
 
     const updateStatus = async (data: UpdateDeliveryDTO) => {
-        setLoading(true)
+        // No global loading here to avoid full page flash
         try {
             await deliveryService.updateStatus(data)
-            await fetchMyDeliveries() // Refresh
+            await fetchMyDeliveries(false) // Silent refresh
         } catch (err: any) {
             setError(err.message)
             throw err
-        } finally {
-            setLoading(false)
         }
     }
 

@@ -59,8 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } catch (e) {
             console.error("Logout error", e)
         }
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
+        localStorage.clear()
         setToken(null)
         setUser(null)
     }

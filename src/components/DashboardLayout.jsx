@@ -13,9 +13,9 @@ export default function DashboardLayout({ children }) {
     const { user, logout } = useAuth()
     const [sidebarOpen, setSidebarOpen] = useState(false)
     return (
-        <div className="min-h-screen bg-slate-50 flex">
+        <div className="h-screen bg-slate-50 flex overflow-hidden">
             {/* Sidebar - Desktop */}
-            <aside className="hidden lg:flex lg:flex-col lg:w-72 bg-white border-r border-slate-200">
+            <aside className="hidden lg:flex lg:flex-col lg:w-72 bg-white border-r border-slate-200 shrink-0">
                 <SidebarContent user={user} logout={logout} />
             </aside>
 
@@ -27,10 +27,10 @@ export default function DashboardLayout({ children }) {
                 logout={logout}
             />
 
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col min-h-screen">
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col h-full overflow-hidden">
                 {/* Mobile Header */}
-                <header className="lg:hidden bg-white border-b border-slate-200 p-4 flex items-center justify-between sticky top-0 z-40">
+                <header className="lg:hidden bg-white border-b border-slate-200 p-4 flex items-center justify-between shrink-0 z-40">
                     <button
                         onClick={() => setSidebarOpen(true)}
                         className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
@@ -60,8 +60,8 @@ export default function DashboardLayout({ children }) {
                     </div>
                 </header>
 
-                {/* Page Content */}
-                <main className="flex-1 p-6 lg:p-8">
+                {/* Page Content - Scrollable */}
+                <main className="flex-1 overflow-y-auto p-6 lg:p-8 custom-scrollbar">
                     {children}
                 </main>
             </div>
