@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../core/auth/AuthContext';
 import Sidebar from './Sidebar';
@@ -8,6 +8,21 @@ const Layout = () => {
   const { isAuthenticated, user, loading } = useAuth();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // Auto-collapse sidebar on mobile screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsSidebarOpen(false);
+      } else {
+        setIsSidebarOpen(true);
+      }
+    };
+    
+    handleResize(); // Check on mount
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   if (loading) {
     return (
@@ -39,7 +54,7 @@ const Layout = () => {
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden font-medium text-slate-600">
       {/* Dynamic Sidebar based on the User's Role */}
-      <Sidebar role={user?.role} isOpen={isSidebarOpen} />
+      <Sidebar role={user?.role} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       <div className="flex flex-col flex-1 w-full overflow-hidden">
         {/* Top Navbar for profile and actions */}
