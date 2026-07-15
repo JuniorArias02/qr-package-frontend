@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Outlet, useLocation, Navigate } from 'react-router-dom';
 import { useAuth } from '../core/auth/AuthContext';
 import Sidebar from './Sidebar';
@@ -6,6 +7,7 @@ import Navbar from './Navbar';
 const Layout = () => {
   const { isAuthenticated, user, loading } = useAuth();
   const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   if (loading) {
     return (
@@ -37,11 +39,11 @@ const Layout = () => {
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden font-medium text-slate-600">
       {/* Dynamic Sidebar based on the User's Role */}
-      <Sidebar role={user?.role} />
+      <Sidebar role={user?.role} isOpen={isSidebarOpen} />
 
       <div className="flex flex-col flex-1 w-full overflow-hidden">
         {/* Top Navbar for profile and actions */}
-        <Navbar />
+        <Navbar toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} isSidebarOpen={isSidebarOpen} />
         
         {/* Scrollable Main Content Area */}
         <main className="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-50 transition-all duration-200">

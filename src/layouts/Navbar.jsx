@@ -1,12 +1,18 @@
 import { useAuth } from '../core/auth/AuthContext';
+import { Menu, X } from 'lucide-react';
 
-const Navbar = () => {
+const Navbar = ({ toggleSidebar, isSidebarOpen }) => {
   const { user, logout } = useAuth();
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 lg:px-8">
+    <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-8">
       <div className="flex items-center gap-4">
-        {/* Global Search could go here */}
+        <button 
+          onClick={toggleSidebar}
+          className="p-2 text-slate-400 hover:text-violet-600 hover:bg-violet-50 rounded-xl transition-all duration-200 hover:scale-[1.05]"
+        >
+          {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
         <h2 className="text-lg font-bold text-slate-900 hidden sm:block">
           Welcome back, {user?.name || 'User'}
         </h2>
