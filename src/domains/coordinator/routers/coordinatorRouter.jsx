@@ -12,5 +12,6 @@ export const coordinatorRoutes = [
   { path: '/coordinator/drivers/:id/edit', element: <DriversForm /> },
   { path: '/coordinator/scan', element: <Scan /> },
   { path: '/coordinator/assignments', element: <Assignments /> },
-  { path: '/coordinator/reports', element: <ReportsDashboard /> }
+  { path: '/coordinator/reports', element: <ReportsDashboard /> },
+  { path: '/reports', element: <ReportsDashboard /> }
 ];

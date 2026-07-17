@@ -54,7 +54,7 @@ const ReportsDashboard = () => {
         };
         return (
             <span className={`px-3 py-1 rounded-full text-xs font-bold border ${styles[status] || 'bg-slate-100 text-slate-600 border-slate-200'}`}>
-                {status === 'delivered' ? 'Entregado' : 'Asignado'}
+                {status === 'delivered' ? 'Delivered' : 'Assigned'}
             </span>
         );
     };
@@ -64,44 +64,44 @@ const ReportsDashboard = () => {
             <div className="max-w-[1600px] mx-auto">
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
                     <div>
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight">Reportes de Logística</h1>
-                        <p className="text-slate-500 mt-2 font-medium">Monitorea el desempeño de tus entregas y conductores</p>
+                        <h1 className="text-4xl font-black text-slate-900 tracking-tight">Logistics Reports</h1>
+                        <p className="text-slate-500 mt-2 font-medium">Monitor your delivery and driver performance</p>
                     </div>
                     <button 
                         onClick={() => loadData(filters)}
                         className="flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-slate-200 text-slate-700 rounded-2xl hover:bg-slate-50 font-bold transition-all shadow-sm active:scale-95 group"
                     >
                         <RefreshCcw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
-                        Actualizar Datos
+                        Refresh Data
                     </button>
                 </div>
 
                 {/* Metrics Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                     <MetricCard 
-                        title="Total Entregas" 
-                        value={metrics?.total_deliveries} 
+                        title="Total Deliveries" 
+                        value={metrics?.total_deliveries || 0} 
                         icon={Package} 
                         color="blue"
                         loading={loading}
                     />
                     <MetricCard 
-                        title="Entregas Exitosas" 
-                        value={metrics?.delivered_count} 
+                        title="Successful Deliveries" 
+                        value={metrics?.delivered_count || 0} 
                         icon={CheckCircle2} 
                         color="green"
                         loading={loading}
                     />
                     <MetricCard 
-                        title="Tasa de Entrega" 
-                        value={`${metrics?.delivery_rate}%`} 
+                        title="Delivery Rate" 
+                        value={metrics?.delivery_rate !== undefined && metrics?.delivery_rate !== null ? `${metrics.delivery_rate}%` : '0%'} 
                         icon={TrendingUp} 
                         color="indigo"
                         loading={loading}
                     />
                     <MetricCard 
-                        title="Tiempo Promedio" 
-                        value={`${metrics?.avg_delivery_time} min`} 
+                        title="Average Time" 
+                        value={metrics?.avg_delivery_time !== undefined && metrics?.avg_delivery_time !== null ? `${metrics.avg_delivery_time} min` : '0 min'} 
                         icon={Clock} 
                         color="amber"
                         loading={loading}
@@ -114,8 +114,8 @@ const ReportsDashboard = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
                     <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
                         <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-xl font-bold text-slate-900">Actividad de Entregas</h3>
-                            <span className="text-sm font-bold text-slate-400">Últimos 7 días</span>
+                            <h3 className="text-xl font-bold text-slate-900">Delivery Activity</h3>
+                            <span className="text-sm font-bold text-slate-400">Last 7 days</span>
                         </div>
                         <div className="h-[350px]">
                             <ResponsiveContainer width="100%" height="100%">
@@ -132,8 +132,8 @@ const ReportsDashboard = () => {
                                     <Tooltip 
                                         contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '16px' }}
                                     />
-                                    <Area type="monotone" dataKey="total" stroke="#6366f1" fillOpacity={1} fill="url(#colorTotal)" strokeWidth={4} />
-                                    <Area type="monotone" dataKey="delivered" stroke="#10b981" fillOpacity={0} strokeWidth={4} />
+                                    <Area type="monotone" dataKey="total" name="Total" stroke="#6366f1" fillOpacity={1} fill="url(#colorTotal)" strokeWidth={4} />
+                                    <Area type="monotone" dataKey="delivered" name="Delivered" stroke="#10b981" fillOpacity={0} strokeWidth={4} />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
@@ -141,8 +141,8 @@ const ReportsDashboard = () => {
 
                     <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
                         <div className="flex items-center justify-between mb-8">
-                            <h3 className="text-xl font-bold text-slate-900">Productividad por Conductor</h3>
-                            <span className="text-sm font-bold text-slate-400">Entrega vs Pedidos</span>
+                            <h3 className="text-xl font-bold text-slate-900">Driver Productivity</h3>
+                            <span className="text-sm font-bold text-slate-400">Delivered vs Pending</span>
                         </div>
                         <div className="h-[350px]">
                             <ResponsiveContainer width="100%" height="100%">
@@ -155,8 +155,8 @@ const ReportsDashboard = () => {
                                         contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', padding: '16px' }}
                                     />
                                     <Legend iconType="circle" wrapperStyle={{paddingTop: '30px'}} />
-                                    <Bar dataKey="delivered" name="Entregas" fill="#6366f1" radius={[8, 8, 0, 0]} barSize={40} />
-                                    <Bar dataKey="pending" name="Pendientes" fill="#e2e8f0" radius={[8, 8, 0, 0]} barSize={40} />
+                                    <Bar dataKey="delivered" name="Delivered" fill="#6366f1" radius={[8, 8, 0, 0]} barSize={40} />
+                                    <Bar dataKey="pending" name="Pending" fill="#e2e8f0" radius={[8, 8, 0, 0]} barSize={40} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
@@ -167,7 +167,7 @@ const ReportsDashboard = () => {
                     {/* Driver Performance Table */}
                     <div className="lg:col-span-1 bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
                         <div className="p-8 border-b border-slate-100 flex items-center justify-between">
-                            <h3 className="text-lg font-black text-slate-900">Rendimiento</h3>
+                            <h3 className="text-lg font-black text-slate-900">Performance</h3>
                             <div className="p-2 bg-emerald-50 rounded-xl">
                                 <span className="text-xs font-black text-emerald-600 uppercase tracking-widest">Live</span>
                             </div>
@@ -176,9 +176,9 @@ const ReportsDashboard = () => {
                             <table className="w-full text-left">
                                 <thead className="bg-slate-50/80">
                                     <tr>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Conductor</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Entregas</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Promedio</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Driver</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Deliveries</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Average</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -203,20 +203,20 @@ const ReportsDashboard = () => {
                     {/* Delivery Report Table */}
                     <div className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
                         <div className="p-8 border-b border-slate-100 flex items-center justify-between">
-                            <h3 className="text-lg font-black text-slate-900">Historial de Entregas</h3>
+                            <h3 className="text-lg font-black text-slate-900">Delivery History</h3>
                             <div className="flex items-center gap-3">
                                  <span className="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></span>
-                                 <span className="text-xs font-bold text-slate-400">Actualizado recientemente</span>
+                                 <span className="text-xs font-bold text-slate-400">Recently updated</span>
                             </div>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead className="bg-slate-50/80">
                                     <tr>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Referencia / Batch</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Conductor</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Estado</th>
-                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Fecha</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Reference / Batch</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Driver</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Status</th>
+                                        <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-center">Date</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -239,7 +239,7 @@ const ReportsDashboard = () => {
                                             </td>
                                             <td className="px-8 py-6 text-center">
                                                 <p className="text-sm font-bold text-slate-600">{new Date(delivery.assigned_at).toLocaleDateString()}</p>
-                                                <p className="text-[10px] text-slate-400 font-bold uppercase">{delivery.delivered_at ? new Date(delivery.delivered_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Pendiente'}</p>
+                                                <p className="text-[10px] text-slate-400 font-bold uppercase">{delivery.delivered_at ? new Date(delivery.delivered_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Pending'}</p>
                                             </td>
                                         </tr>
                                     ))}
@@ -248,8 +248,8 @@ const ReportsDashboard = () => {
                                             <td colSpan="4" className="px-8 py-20 text-center">
                                                 <div className="flex flex-col items-center opacity-30">
                                                     <span className="text-5xl mb-4">🔍</span>
-                                                    <p className="text-slate-900 font-black text-xl">Sin resultados</p>
-                                                    <p className="text-slate-500 font-bold">Intenta ajustar los filtros de búsqueda</p>
+                                                    <p className="text-slate-900 font-black text-xl">No results found</p>
+                                                    <p className="text-slate-500 font-bold">Try adjusting your search filters</p>
                                                 </div>
                                             </td>
                                         </tr>
