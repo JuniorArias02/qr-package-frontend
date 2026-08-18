@@ -63,6 +63,12 @@ export const menuConfig = {
             color: 'text-indigo-500'
         },
         {
+            name: 'Route Planning',
+            icon: Map,
+            path: '/routes',
+            color: 'text-emerald-500'
+        },
+        {
             name: 'System Reports',
             icon: BarChart,
             path: '/reports',
@@ -97,7 +103,7 @@ export const menuConfig = {
         {
             name: 'Route Planning',
             icon: Map,
-            path: '/coordinator/routes',
+            path: '/routes',
             color: 'text-emerald-500'
         },
         {

@@ -39,6 +39,17 @@ export default function SuperAdminDashboard() {
         )
     }
 
+    if (!stats) {
+        return (
+            <div className="max-w-7xl mx-auto pb-12 pt-20 flex flex-col items-center justify-center">
+                <div className="p-6 bg-rose-50 text-rose-600 rounded-3xl flex flex-col items-center gap-3 border border-rose-100 shadow-sm text-center">
+                    <span className="font-black text-xl uppercase tracking-widest">Error al cargar datos</span>
+                    <span className="text-sm font-bold opacity-80">No se pudieron obtener las estadísticas globales. Verifica que el servidor (API) esté respondiendo.</span>
+                </div>
+            </div>
+        )
+    }
+
     return (
         <>
             <div className="max-w-7xl mx-auto pb-12">

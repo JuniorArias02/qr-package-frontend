@@ -201,6 +201,16 @@ export default function Login() {
                 .animate-shake {
                     animation: shake 0.2s ease-in-out 0s 2;
                 }
+
+                /* Autofill reset for WebKit */
+                input:-webkit-autofill,
+                input:-webkit-autofill:hover, 
+                input:-webkit-autofill:focus, 
+                input:-webkit-autofill:active {
+                    -webkit-box-shadow: 0 0 0 1000px white inset !important;
+                    -webkit-text-fill-color: #0f172a !important;
+                    transition: background-color 5000s ease-in-out 0s;
+                }
             `}</style>
         </div>
     )

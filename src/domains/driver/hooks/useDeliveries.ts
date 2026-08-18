@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
-import deliveryService from '../../domains/driver/services/delivery.service'
-import { Package } from '../types/package.types'
-import { UpdateDeliveryDTO, DeliveryStats } from '../types/delivery.types'
+import deliveryService from '../services/delivery.service'
+import { Package } from '../../../core/types/package.types'
+import { UpdateDeliveryDTO, DeliveryStats } from '../../../core/types/delivery.types'
 
 export const useDeliveries = () => {
     const [deliveries, setDeliveries] = useState<Package[]>([])

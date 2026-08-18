@@ -29,8 +29,14 @@ api.interceptors.response.use(
     },
     (error: AxiosError) => {
         if (error.response?.status === 401) {
+            // Eliminar credenciales caducadas
             localStorage.removeItem('token')
             localStorage.removeItem('user')
+            
+            // Redirigir forzosamente al login (Evita dependencias circulares)
+            if (window.location.pathname !== '/login') {
+                window.location.href = '/login'
+            }
         }
         return Promise.reject(error)
     }

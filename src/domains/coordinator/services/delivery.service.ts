@@ -17,9 +17,9 @@ class DeliveryService {
     }
 
     /**
-     * Registers a new package and assigns it
+     * Registers a new package and assigns it automatically or manually if driver_id is provided
      */
-    async registerPackage(data: any): Promise<ScanResponse> {
+    async registerPackage(data: { package_reference: string; address: string; driver_id?: number | null }): Promise<ScanResponse> {
         const response = await api.post('/v1/delivery/register-package', data)
         return response.data
     }
@@ -33,6 +33,14 @@ class DeliveryService {
             driver_id: driverId
         })
         return response.data.objeto
+    }
+
+    /**
+     * Fetches all unassigned pending deliveries
+     */
+    async getPendingDeliveries(): Promise<Delivery[]> {
+        const response = await api.get('/v1/delivery/pending')
+        return response.data.objeto || []
     }
 }
 

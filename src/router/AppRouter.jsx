@@ -9,6 +9,7 @@ import { profileRoutes } from '../domains/profile/routers/profileRouter';
 import { superAdminRoutes } from '../domains/superAdmin/routers/superAdminRouter';
 // import { usersRoutes } from '../domains/users/routers/usersRouter';
 // import { packagesRoutes } from '../domains/packages/routers/packagesRouter';
+import { routesRouter } from '../domains/routes/routers/routesRouter';
 
 import DashboardRedirect from '../core/auth/DashboardRedirect';
 
@@ -30,6 +31,7 @@ export const AppRouter = createBrowserRouter([
       // When domains are created, spread their routes here:
       // ...usersRoutes,
       // ...packagesRoutes,
+      ...routesRouter,
       {
         path: '*',
         element: (

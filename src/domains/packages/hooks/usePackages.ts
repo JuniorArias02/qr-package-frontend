@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
-import packageService from '../../domains/packages/services/package.service'
-import { Package, CreatePackageDTO } from '../types/package.types'
+import packageService from '../services/package.service'
+import { Package, CreatePackageDTO } from '../../../core/types/package.types'
 
 export const usePackages = () => {
     const [packages, setPackages] = useState<Package[]>([])

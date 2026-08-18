@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { useDeliveries } from '../../../core/hooks/useDeliveries'
+import { useDeliveries } from '../hooks/useDeliveries'
 import { PackageStatus } from '../../../core/types/package.types'
 import {
     Truck,

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import authService from '../../auth/services/authService'
-import { useAuth } from '../../../core/hooks/useAuth'
+import { useAuth } from '../../../core/auth/AuthContext'
 import {
     User,
     Mail,
