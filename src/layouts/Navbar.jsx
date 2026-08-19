@@ -119,9 +119,9 @@ const Navbar = ({ toggleSidebar, isSidebarOpen }) => {
             <h2 className="text-lg font-black text-slate-800 tracking-tight">
               Welcome back, {user?.name?.split(' ')[0] || 'User'}
             </h2>
-            <span className="px-3 py-1 bg-violet-100 text-violet-700 rounded-full text-xs font-bold uppercase tracking-wider">
+            {/* <span className="px-3 py-1 bg-violet-100 text-violet-700 rounded-full text-xs font-bold uppercase tracking-wider">
               {user?.role || 'Guest'}
-            </span>
+            </span> */}
           </div>
         </div>
 

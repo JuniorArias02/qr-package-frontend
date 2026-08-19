@@ -53,7 +53,7 @@ export default function SuperAdminDashboard() {
     return (
         <>
             <div className="max-w-7xl mx-auto pb-12">
-                
+
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
                     <div>
@@ -66,7 +66,7 @@ export default function SuperAdminDashboard() {
                             </span>
                         </div>
                         <h1 className="text-4xl font-black text-slate-900 tracking-tight">Dashboard</h1>
-                        <p className="text-slate-500 font-medium">Estado actual de la red Multi-Tenant</p>
+                        <p className='text-gray-500 font-bold'>Sistema de seguimiento de paquetes</p>
                     </div>
                 </div>
 
@@ -80,7 +80,7 @@ export default function SuperAdminDashboard() {
                     ].map((card, i) => (
                         <div key={i} className="group bg-white p-8 rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
                             <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${card.color} opacity-[0.03] -mr-16 -mt-16 rounded-full transition-transform group-hover:scale-150 duration-700`} />
-                            
+
                             <div className="flex items-center gap-4 mb-4">
                                 <div className={`p-3 bg-gradient-to-br ${card.color} rounded-2xl text-white shadow-lg ${card.shadow}`}>
                                     <card.icon className="w-6 h-6" />
@@ -89,7 +89,7 @@ export default function SuperAdminDashboard() {
                                     {card.label}
                                 </h3>
                             </div>
-                            
+
                             <div className="flex items-end justify-between">
                                 <p className="text-4xl font-black text-slate-900 tracking-tighter">{card.value}</p>
                                 <div className="flex items-center text-emerald-500 text-xs font-black bg-emerald-50 px-2 py-1 rounded-lg">
@@ -103,7 +103,7 @@ export default function SuperAdminDashboard() {
 
                 {/* Secondary Charts / Lists */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    
+
                     {/* Deliveries Last 7 Days (Simplified Chart) */}
                     <div className="lg:col-span-2 bg-white rounded-[2.5rem] border border-slate-200 p-8 shadow-sm">
                         <div className="flex items-center justify-between mb-8">
@@ -112,7 +112,7 @@ export default function SuperAdminDashboard() {
                                 Rendimiento Últimos 7 Días
                             </h2>
                         </div>
-                        
+
                         <div className="h-64 flex items-end gap-3 px-4">
                             {stats.deliveries_last_7_days.map((day, i) => {
                                 const maxVal = Math.max(...stats.deliveries_last_7_days.map(d => d.count), 1);
@@ -122,11 +122,10 @@ export default function SuperAdminDashboard() {
                                         <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] font-black px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
                                             {day.count}
                                         </div>
-                                        <div 
+                                        <div
                                             style={{ height: `${Math.max(8, height)}%` }}
-                                            className={`w-full rounded-2xl transition-all duration-500 group-hover:scale-x-110 ${
-                                                i === 6 ? 'bg-gradient-to-t from-violet-600 to-indigo-700' : 'bg-slate-100 group-hover:bg-violet-200'
-                                            }`} 
+                                            className={`w-full rounded-2xl transition-all duration-500 group-hover:scale-x-110 ${i === 6 ? 'bg-gradient-to-t from-violet-600 to-indigo-700' : 'bg-slate-100 group-hover:bg-violet-200'
+                                                }`}
                                         />
                                         <p className="text-[10px] font-black text-slate-400 mt-4 text-center uppercase tracking-tighter">
                                             {day.day}
@@ -143,7 +142,7 @@ export default function SuperAdminDashboard() {
                             <Activity className="w-6 h-6 text-emerald-500" />
                             Status Empresas
                         </h2>
-                        
+
                         <div className="space-y-6">
                             {stats.companies_status.map((item, i) => (
                                 <div key={i} className="relative">
@@ -152,28 +151,15 @@ export default function SuperAdminDashboard() {
                                         <p className="text-lg font-black text-slate-900">{item.value}</p>
                                     </div>
                                     <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
-                                        <div 
-                                            className={`h-full rounded-full transition-all duration-1000 ${
-                                                item.name === 'Activas' ? 'bg-emerald-500' : 'bg-red-400'
-                                            }`}
+                                        <div
+                                            className={`h-full rounded-full transition-all duration-1000 ${item.name === 'Activas' ? 'bg-emerald-500' : 'bg-red-400'
+                                                }`}
                                             style={{ width: `${(item.value / stats.total_companies) * 100}%` }}
                                         />
                                     </div>
                                 </div>
                             ))}
-                        </div>
-
-                        <div className="mt-12 bg-violet-50 rounded-2xl p-6 border border-violet-100">
-                            <div className="flex items-start gap-4">
-                                <Calendar className="w-10 h-10 text-violet-600" />
-                                <div>
-                                    <p className="font-black text-violet-900">Resumen Semanal</p>
-                                    <p className="text-violet-700/70 text-sm font-medium leading-tight">
-                                        Sistema Multi-Tenant saludable al 100% de disponibilidad.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                        </div>     
                     </div>
                 </div>
             </div>

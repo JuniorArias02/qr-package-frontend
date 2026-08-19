@@ -80,7 +80,6 @@ export default function MyAccount() {
             const result = await authService.updateProfilePhoto(file)
             setProfileImage(result.profile_image)
             setSuccess('Profile photo updated successfully')
-            // Don't reload immediately here to allow preview to stay
         } catch (err) {
             console.error(err)
             setError(err.response?.data?.mensaje || 'Error uploading photo')
@@ -113,9 +112,6 @@ export default function MyAccount() {
             await authService.updateProfile(updateData)
             setSuccess('Profile updated successfully')
             setFormData(prev => ({ ...prev, password: '', confirmPassword: '' }))
-
-            // Refresh page data or sync with context if needed
-            // Window reload is a simple way to ensure all header/sidebar components update
             setTimeout(() => window.location.reload(), 1500)
         } catch (err) {
             console.error(err)
