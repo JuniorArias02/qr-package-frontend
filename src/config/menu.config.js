@@ -12,7 +12,8 @@ import {
     Map,
     Building2,
     Globe,
-    ShieldCheck
+    ShieldCheck,
+    Route
 } from 'lucide-react'
 import { UserRole } from '../core/types/auth.types'
 
@@ -95,10 +96,22 @@ export const menuConfig = {
             color: 'text-blue-500'
         },
         {
+            name: 'Batch Dispatch',
+            icon: Route,
+            path: '/coordinator/batch-dispatch',
+            color: 'text-indigo-500'
+        },
+        {
             name: 'Drivers',
             icon: Users,
             path: '/coordinator/drivers',
             color: 'text-amber-500'
+        },
+        {
+            name: 'Branches',
+            icon: Building2,
+            path: '/coordinator/branches',
+            color: 'text-rose-500'
         },
         {
             name: 'Route Planning',

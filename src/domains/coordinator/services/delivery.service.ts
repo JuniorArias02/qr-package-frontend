@@ -42,6 +42,13 @@ class DeliveryService {
         const response = await api.get('/v1/delivery/pending')
         return response.data.objeto || []
     }
+    /**
+     * Generates a batch route assigning pending packages to active drivers using a specific branch.
+     */
+    async generateBatch(data: { branch_id: number; package_ids: number[]; driver_ids: number[] }): Promise<any> {
+        const response = await api.post('/v1/delivery/generate-batch', data)
+        return response.data
+    }
 }
 
 export default new DeliveryService()

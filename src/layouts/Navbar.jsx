@@ -3,6 +3,8 @@ import { Menu, X, Bell, Search, ChevronDown, User as UserIcon, LogOut } from 'lu
 import { useState, useEffect } from 'react';
 import { UserRole } from '../core/types/auth.types';
 import { useNavigate } from 'react-router-dom';
+import NotificationsDropdown from '../domains/notifications/components/NotificationsDropdown';
+
 
 const Navbar = ({ toggleSidebar, isSidebarOpen }) => {
   const { user, logout } = useAuth();
@@ -184,10 +186,7 @@ const Navbar = ({ toggleSidebar, isSidebarOpen }) => {
           </form>
 
           {/* Notifications */}
-          <button className="relative p-2.5 text-slate-400 hover:text-violet-600 hover:bg-violet-50/80 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95">
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border-2 border-white animate-pulse" />
-          </button>
+          <NotificationsDropdown />
 
           <div className="h-8 w-[1px] bg-slate-200 mx-1 hidden sm:block"></div>
 
