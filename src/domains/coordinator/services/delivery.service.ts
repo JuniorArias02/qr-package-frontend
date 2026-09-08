@@ -49,6 +49,37 @@ class DeliveryService {
         const response = await api.post('/v1/delivery/generate-batch', data)
         return response.data
     }
+
+    /**
+     * Requeues a failed package to pending_assignment
+     */
+    async requeuePackage(id: number): Promise<any> {
+        const response = await api.post(`/v1/delivery/${id}/requeue`)
+        return response.data
+    }
+
+    async getFailedDeliveries(): Promise<Delivery[]> {
+        try {
+            // First try a dedicated endpoint if it exists
+            const response = await api.get('/v1/delivery/failed');
+            const data = response.data.objeto?.data || response.data.objeto || response.data || [];
+            return Array.isArray(data) ? data : [];
+        } catch (e) {
+            // Fallback to getting all deliveries via reports
+            const response = await api.get('/v1/coordinator/reports/deliveries');
+            const data = response.data.objeto?.data || response.data.objeto || response.data || [];
+            const all = Array.isArray(data) ? data : [];
+            return all.filter((d: Delivery) => d.status === 'failed' || (d as any).observation);
+        }
+    }
+
+    /**
+     * Gets all active routes distributed by TSP
+     */
+    async getActiveRoutes(): Promise<any> {
+        const response = await api.get('/v1/delivery/active-routes')
+        return response.data.objeto || response.data || []
+    }
 }
 
 export default new DeliveryService()

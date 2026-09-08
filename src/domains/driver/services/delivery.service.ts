@@ -24,6 +24,11 @@ const deliveryService = {
     getDeliveryInfo: async (packageReference: string, deliveryId: number): Promise<any> => {
         const response = await api.get(`/v1/delivery/info/${packageReference}/${deliveryId}`)
         return response.data
+    },
+
+    getPopupDetails: async (id: number): Promise<any> => {
+        const response = await api.get(`/v1/delivery/${id}/popup-details`)
+        return response.data.objeto || response.data
     }
 }
 

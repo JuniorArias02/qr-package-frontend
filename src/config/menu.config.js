@@ -1,4 +1,5 @@
 import {
+    AlertCircle,
     LayoutDashboard,
     Scan,
     ClipboardList,
@@ -102,6 +103,12 @@ export const menuConfig = {
             color: 'text-indigo-500'
         },
         {
+            name: 'Incidencias',
+            icon: AlertCircle,
+            path: '/coordinator/incidents',
+            color: 'text-rose-600'
+        },
+        {
             name: 'Drivers',
             icon: Users,
             path: '/coordinator/drivers',
@@ -114,9 +121,9 @@ export const menuConfig = {
             color: 'text-rose-500'
         },
         {
-            name: 'Route Planning',
+            name: 'Live Routes',
             icon: Map,
-            path: '/routes',
+            path: '/coordinator/live-routes',
             color: 'text-emerald-500'
         },
         {

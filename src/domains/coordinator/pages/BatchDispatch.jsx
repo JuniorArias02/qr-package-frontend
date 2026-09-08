@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import branchService from '../services/branch.service'
 import coordinatorService from '../services/coordinatorService'
 import deliveryService from '../services/delivery.service'
+import { Link } from 'react-router-dom'
 import {
     MapPin,
     Package,
@@ -62,6 +63,13 @@ export default function BatchDispatch() {
             const pendingList = Array.isArray(pendingData) ? pendingData : []
             setPendingDeliveries(pendingList)
 
+            // Auto-populate the bag with all unassigned packages initially
+            setScannedPackages(pendingList.map(d => ({
+                id: d.package_id,
+                reference: d.package?.package_reference || d.package_id.toString(),
+                address: d.package?.address || ''
+            })))
+
         } catch (err) {
             console.error("Failed to load initial data", err)
             setError('Failed to load required data. Please refresh.')
@@ -99,6 +107,30 @@ export default function BatchDispatch() {
 
         setScanInput('')
         scanInputRef.current?.focus()
+    }
+
+    const addAllPending = () => {
+        const newPackages = pendingDeliveries
+            .filter(d => !scannedPackages.find(p => p.id === d.package_id))
+            .map(d => ({
+                id: d.package_id,
+                reference: d.package?.package_reference || d.package_id.toString(),
+                address: d.package?.address || ''
+            }));
+            
+        if (newPackages.length === 0) {
+            setError('All pending packages are already in the bag.');
+            setTimeout(() => setError(''), 3000);
+            return;
+        }
+
+        setScannedPackages([...scannedPackages, ...newPackages]);
+        setSuccess(`Added ${newPackages.length} packages to bag`);
+        setTimeout(() => setSuccess(''), 2000);
+    }
+
+    const clearBag = () => {
+        setScannedPackages([]);
     }
 
     const removePackage = (id) => {
@@ -193,9 +225,17 @@ export default function BatchDispatch() {
                 </div>
             )}
             {success && (
-                <div className="mb-6 p-4 bg-emerald-50 text-emerald-700 rounded-2xl border border-emerald-200 flex items-center gap-3 shadow-sm animate-in fade-in">
-                    <CheckCircle className="w-5 h-5 shrink-0" />
-                    <span className="font-medium">{success}</span>
+                <div className="mb-6 p-4 bg-emerald-50 text-emerald-700 rounded-2xl border border-emerald-200 flex items-center justify-between shadow-sm animate-in fade-in">
+                    <div className="flex items-center gap-3">
+                        <CheckCircle className="w-5 h-5 shrink-0" />
+                        <span className="font-medium">{success}</span>
+                    </div>
+                    <Link
+                        to="/coordinator/live-routes"
+                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm transition-colors shadow-sm whitespace-nowrap"
+                    >
+                        Ver Mapa de Rutas
+                    </Link>
                 </div>
             )}
 
@@ -239,8 +279,17 @@ export default function BatchDispatch() {
                                     Scan Packages
                                 </h2>
                                 <div className="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-xl text-sm font-black tracking-widest uppercase">
-                                    Bag: {scannedPackages.length}
+                                    Bag: {scannedPackages.length} / {pendingDeliveries.length}
                                 </div>
+                            </div>
+                            
+                            <div className="flex gap-2 mb-4">
+                                <button type="button" onClick={addAllPending} className="flex-1 py-2 bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-bold rounded-xl transition-colors text-sm border border-slate-200">
+                                    Add All Pending
+                                </button>
+                                <button type="button" onClick={clearBag} className="flex-1 py-2 bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 font-bold rounded-xl transition-colors text-sm border border-slate-200">
+                                    Clear Bag
+                                </button>
                             </div>
 
                             <form onSubmit={handleScan} className="relative">

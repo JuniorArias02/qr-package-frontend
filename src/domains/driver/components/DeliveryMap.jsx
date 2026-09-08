@@ -1,7 +1,9 @@
-import { useEffect, useRef } from 'react'
-import { MapContainer, TileLayer, Marker, GeoJSON, useMap } from 'react-leaflet'
+import { useState, useEffect, useRef } from 'react'
+import { MapContainer, TileLayer, Marker, GeoJSON, useMap, Popup } from 'react-leaflet'
 import { divIcon } from 'leaflet'
 import { useRouteGeometry } from '../hooks/useRouteGeometry'
+import { MapPin, User, Package, AlertCircle, CheckCircle } from 'lucide-react'
+import deliveryService from '../services/delivery.service'
 
 // Map Controller for auto-centering
 const MapBoundsController = ({ bounds }) => {
@@ -41,6 +43,99 @@ const createCustomIcon = (delivery) => {
         iconSize: [40, 40],
         iconAnchor: [20, 20],
     })
+}
+
+// Subcomponente aislado para manejar el fetching al hacer click
+const DeliveryMarker = ({ delivery }) => {
+    const [details, setDetails] = useState(null)
+    const [loading, setLoading] = useState(false)
+    const [hasFetched, setHasFetched] = useState(false)
+
+    const lat = delivery.package?.geocoded_address?.latitude;
+    const lng = delivery.package?.geocoded_address?.longitude;
+
+    if (!lat || !lng) return null;
+
+    const handleFetchDetails = async () => {
+        if (hasFetched || loading) return;
+        setLoading(true)
+        try {
+            const data = await deliveryService.getPopupDetails(delivery.id)
+            setDetails(data)
+            setHasFetched(true)
+        } catch (err) {
+            console.error("Failed to fetch popup details", err)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return (
+        <Marker 
+            position={[parseFloat(lat), parseFloat(lng)]}
+            icon={createCustomIcon(delivery)}
+            eventHandlers={{ click: handleFetchDetails }}
+        >
+            <Popup className="custom-popup" minWidth={220}>
+                {loading ? (
+                    <div className="p-4 flex flex-col items-center justify-center text-slate-400 gap-2">
+                        <div className="w-6 h-6 border-2 border-violet-100 border-t-violet-600 rounded-full animate-spin"></div>
+                        <span className="text-xs font-bold uppercase tracking-widest">Cargando...</span>
+                    </div>
+                ) : details ? (
+                    <div className="font-sans">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Package className="w-5 h-5 text-violet-600" />
+                            <h3 className="font-black text-slate-900 text-lg m-0 leading-none">
+                                {details.package_reference}
+                            </h3>
+                        </div>
+                        
+                        <div className="space-y-2 mt-3">
+                            <p className="flex items-start gap-2 text-sm text-slate-600 m-0">
+                                <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                                <span className="leading-tight">{details.address}</span>
+                            </p>
+                            
+                            <p className="flex items-center gap-2 text-sm text-slate-600 m-0">
+                                <User className="w-4 h-4 text-slate-400 shrink-0" />
+                                <span className="font-medium">{details.driver_name}</span>
+                            </p>
+
+                            <div className="flex items-center gap-2 text-sm m-0 pt-2 border-t border-slate-100">
+                                {details.status === 'delivered' || details.status === 'Entregado' ? (
+                                    <>
+                                        <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
+                                        <span className="font-bold text-emerald-600">Entregado</span>
+                                    </>
+                                ) : details.observation ? (
+                                    <>
+                                        <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                                        <span className="font-bold text-rose-600">Fallido</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="w-2 h-2 rounded-full bg-amber-500 ml-1"></div>
+                                        <span className="font-bold text-amber-600 ml-1">Pendiente</span>
+                                    </>
+                                )}
+                            </div>
+
+                            {details.observation && (
+                                <p className="text-xs font-bold text-rose-600 bg-rose-50 p-2 rounded-lg m-0 border border-rose-100">
+                                    Motivo: {details.observation}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="p-3 text-center text-sm text-slate-500 font-medium">
+                        Haz clic nuevamente para cargar detalles.
+                    </div>
+                )}
+            </Popup>
+        </Marker>
+    )
 }
 
 export default function DeliveryMap({ deliveries }) {
@@ -101,20 +196,10 @@ export default function DeliveryMap({ deliveries }) {
                     />
                 )}
 
-                {/* Render markers */}
-                {deliveries.map(delivery => {
-                    const lat = delivery.package?.geocoded_address?.latitude;
-                    const lng = delivery.package?.geocoded_address?.longitude;
-                    if (!lat || !lng) return null;
-
-                    return (
-                        <Marker 
-                            key={delivery.id} 
-                            position={[parseFloat(lat), parseFloat(lng)]}
-                            icon={createCustomIcon(delivery)}
-                        />
-                    )
-                })}
+                {/* Render markers utilizando el nuevo subcomponente */}
+                {deliveries.map(delivery => (
+                    <DeliveryMarker key={delivery.id} delivery={delivery} />
+                ))}
             </MapContainer>
         </div>
     )
