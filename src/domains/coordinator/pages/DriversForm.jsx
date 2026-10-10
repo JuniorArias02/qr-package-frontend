@@ -15,8 +15,11 @@ import {
     ToggleLeft,
     ToggleRight,
     Eye,
-    EyeOff
+    EyeOff,
+    Building2
 } from 'lucide-react'
+import { useAuth } from '../../../core/auth/AuthContext'
+import branchService from '../../driver/services/branchService'
 
 export default function DriversForm() {
     const { id } = useParams()
@@ -28,19 +31,39 @@ export default function DriversForm() {
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
 
+    const { user: authUser } = useAuth()
+
     const [showPassword, setShowPassword] = useState(false)
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         password: '',
-        active: true
+        active: true,
+        branch_id: isEdit ? '' : (authUser?.branch_id || '')
     })
+    const [branches, setBranches] = useState([])
+
+    useEffect(() => {
+        if (authUser?.branch_id && !formData.branch_id && !isEdit) {
+            setFormData(prev => ({ ...prev, branch_id: authUser.branch_id }))
+        }
+    }, [authUser, isEdit])
 
     useEffect(() => {
         if (isEdit) {
             fetchDriver()
         }
+        fetchBranches()
     }, [id])
+
+    const fetchBranches = async () => {
+        try {
+            const data = await branchService.getBranches()
+            setBranches(data.objeto || data.data || [])
+        } catch (err) {
+            console.error('Error fetching branches:', err)
+        }
+    }
 
     const fetchDriver = async () => {
         try {
@@ -49,7 +72,8 @@ export default function DriversForm() {
                 name: data.user.name,
                 email: data.user.email,
                 password: '',
-                active: data.user.active
+                active: data.user.active,
+                branch_id: data.user.branch_id || ''
             })
         } catch (err) {
             console.error(err)
@@ -177,6 +201,31 @@ export default function DriversForm() {
                                         >
                                             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                         </button>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-slate-700 ml-1">Assigned Branch (Sede)</label>
+                                    <div className="relative group">
+                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-violet-600 transition-colors">
+                                            <Building2 className="w-5 h-5" />
+                                        </div>
+                                        <select
+                                            required
+                                            value={formData.branch_id}
+                                            onChange={e => setFormData({ ...formData, branch_id: e.target.value })}
+                                            className="w-full pl-12 pr-12 py-4 bg-slate-50/50 border-2 border-slate-100 rounded-2xl focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 outline-none transition-all font-medium text-slate-900 appearance-none cursor-pointer"
+                                        >
+                                            <option value="" disabled>Select a branch</option>
+                                            {branches.map(b => (
+                                                <option key={b.id} value={b.id}>{b.name}</option>
+                                            ))}
+                                        </select>
+                                        <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                            <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                            </svg>
+                                        </div>
                                     </div>
                                 </div>
 

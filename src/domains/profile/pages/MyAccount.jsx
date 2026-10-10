@@ -15,9 +15,12 @@ import {
     BadgeCheck,
     KeyRound,
     Eye,
-    EyeOff
+    EyeOff,
+    MapPin,
+    Building2
 } from 'lucide-react'
 import MyAccountLoader from '../components/MyAccountLoader'
+import branchService from '../../driver/services/branchService'
 
 export default function MyAccount() {
     const { user: authUser } = useAuth()
@@ -30,8 +33,10 @@ export default function MyAccount() {
         name: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        branch_id: ''
     })
+    const [branches, setBranches] = useState([])
 
     const [showPassword, setShowPassword] = useState(false)
     const [profileImage, setProfileImage] = useState(null)
@@ -40,7 +45,19 @@ export default function MyAccount() {
 
     useEffect(() => {
         fetchProfile()
-    }, [])
+        if (authUser) {
+            fetchBranches()
+        }
+    }, [authUser])
+
+    const fetchBranches = async () => {
+        try {
+            const data = await branchService.getBranches()
+            setBranches(data.data || data.objeto || data || [])
+        } catch (err) {
+            console.error('Error fetching branches:', err)
+        }
+    }
 
     const fetchProfile = async () => {
         try {
@@ -49,7 +66,8 @@ export default function MyAccount() {
                 name: data.name || '',
                 email: data.email || '',
                 password: '',
-                confirmPassword: ''
+                confirmPassword: '',
+                branch_id: data.branch_id || ''
             })
             if (data.profile_image) {
                 setProfileImage(data.profile_image)
@@ -110,6 +128,10 @@ export default function MyAccount() {
             }
 
             await authService.updateProfile(updateData)
+
+            if (formData.branch_id) {
+                await branchService.updateDriverBranch(formData.branch_id)
+            }
             setSuccess('Profile updated successfully')
             setFormData(prev => ({ ...prev, password: '', confirmPassword: '' }))
             setTimeout(() => window.location.reload(), 1500)
@@ -261,6 +283,30 @@ export default function MyAccount() {
                                             />
                                         </div>
                                     </div>
+                                    
+                                    <div className="space-y-2 mt-6">
+                                        <label className="text-sm font-bold text-slate-700 ml-1">Assigned Branch (Sede)</label>
+                                        <div className="relative group">
+                                                <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-violet-600 transition-colors" />
+                                                <select
+                                                    value={formData.branch_id}
+                                                    onChange={e => setFormData({ ...formData, branch_id: e.target.value })}
+                                                    className="w-full pl-12 pr-5 py-4 bg-slate-50/50 border-2 border-slate-100 rounded-2xl focus:bg-white focus:border-violet-500 focus:ring-4 focus:ring-violet-500/10 outline-none transition-all font-medium text-slate-900 appearance-none cursor-pointer"
+                                                >
+                                                    <option value="" disabled>Select your branch</option>
+                                                    {branches.map(branch => (
+                                                        <option key={branch.id} value={branch.id}>
+                                                            {branch.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
                                 </section>
 
                                 <div className="h-px bg-slate-100 my-10" />

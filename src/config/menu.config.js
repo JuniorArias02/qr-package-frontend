@@ -91,13 +91,7 @@ export const menuConfig = {
             color: 'text-cyan-500'
         },
         {
-            name: 'Assignments',
-            icon: ClipboardList,
-            path: '/coordinator/assignments',
-            color: 'text-blue-500'
-        },
-        {
-            name: 'Batch Dispatch',
+            name: 'Asig / Exp',
             icon: Route,
             path: '/coordinator/batch-dispatch',
             color: 'text-indigo-500'
@@ -121,10 +115,22 @@ export const menuConfig = {
             color: 'text-rose-500'
         },
         {
+            name: 'Route Planning',
+            icon: Map,
+            path: '/routes',
+            color: 'text-emerald-600'
+        },
+        {
             name: 'Live Routes',
             icon: Map,
             path: '/coordinator/live-routes',
             color: 'text-emerald-500'
+        },
+        {
+            name: 'Mapa Global',
+            icon: Map,
+            path: '/coordinator/undelivered-map',
+            color: 'text-blue-600'
         },
         {
             name: 'Fleet Stats',

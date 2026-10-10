@@ -4,22 +4,22 @@ import { Driver, DriverFormData } from '../types/driver.types'
 class DriverService {
     async getAll(): Promise<Driver[]> {
         const response = await api.get('/v1/coordinator/drivers')
-        return response.data.objeto
+        return response.data.data || response.data.objeto || response.data
     }
 
     async getById(id: string | number): Promise<Driver> {
         const response = await api.get(`/v1/coordinator/drivers/${id}`)
-        return response.data.objeto
+        return response.data.data || response.data.objeto || response.data
     }
 
     async create(data: DriverFormData): Promise<Driver> {
         const response = await api.post('/v1/coordinator/drivers', data)
-        return response.data.objeto
+        return response.data.data || response.data.objeto || response.data
     }
 
     async update(id: string | number, data: DriverFormData): Promise<Driver> {
         const response = await api.post(`/v1/coordinator/drivers/${id}`, data)
-        return response.data.objeto
+        return response.data.data || response.data.objeto || response.data
     }
 
     async delete(id: string | number): Promise<void> {

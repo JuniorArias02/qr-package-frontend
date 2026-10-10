@@ -3,6 +3,7 @@ import branchService from '../services/branch.service'
 import coordinatorService from '../services/coordinatorService'
 import deliveryService from '../services/delivery.service'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../../core/auth/AuthContext'
 import {
     MapPin,
     Package,
@@ -20,8 +21,10 @@ export default function BatchDispatch() {
     const [branches, setBranches] = useState([])
     const [drivers, setDrivers] = useState([])
     
+    const { user: authUser } = useAuth()
+    
     // Selections & Bag
-    const [selectedBranch, setSelectedBranch] = useState('')
+    const [selectedBranch, setSelectedBranch] = useState(authUser?.branch_id || '')
     const [scannedPackages, setScannedPackages] = useState([]) // Array of package references (strings) or IDs. Wait, the endpoint expects package_ids. We'll store objects: { id: int, reference: string } if possible. But the prompt says "una vista donde se escanean los paquetes... el frontend lo añade a un estado local (ej. array package_ids)". 
     // Usually, a barcode scanner scans the "package_reference". If we need the "package_id", we might need to fetch it or the backend might accept package_references. Let's assume the user scans references and we send references, OR the backend endpoint /generate-batch can accept references. Let's check `deliveryService.scanPackage`. It sends `package_reference`.
     // Wait, the prompt explicitly says: `POST /api/v1/delivery/generate-batch enviando { "branch_id": 1, "package_ids": [...], "driver_ids": [...] }`.
@@ -42,8 +45,29 @@ export default function BatchDispatch() {
     const scanInputRef = useRef(null)
 
     useEffect(() => {
+        if (authUser?.branch_id && !selectedBranch) {
+            setSelectedBranch(authUser.branch_id)
+        }
+    }, [authUser])
+
+    useEffect(() => {
         fetchInitialData()
     }, [])
+
+    useEffect(() => {
+        if (!loading && pendingDeliveries.length > 0) {
+            const branchPending = pendingDeliveries.filter(d => 
+                !selectedBranch || d.package?.branch_id == selectedBranch
+            )
+            setScannedPackages(branchPending.map(d => ({
+                id: d.package_id,
+                reference: d.package?.package_reference || d.package_id.toString(),
+                address: d.package?.address || ''
+            })))
+        } else if (!loading && pendingDeliveries.length === 0) {
+            setScannedPackages([])
+        }
+    }, [selectedBranch])
 
     const fetchInitialData = async () => {
         setLoading(true)
@@ -63,8 +87,15 @@ export default function BatchDispatch() {
             const pendingList = Array.isArray(pendingData) ? pendingData : []
             setPendingDeliveries(pendingList)
 
-            // Auto-populate the bag with all unassigned packages initially
-            setScannedPackages(pendingList.map(d => ({
+            // Filter pending deliveries by branch if possible, otherwise we do it on render
+            // But let's auto-populate the bag with only packages from the selected branch
+            const initialBranch = authUser?.branch_id || ''
+            
+            const branchPending = pendingList.filter(d => 
+                !initialBranch || d.package?.branch_id == initialBranch
+            )
+
+            setScannedPackages(branchPending.map(d => ({
                 id: d.package_id,
                 reference: d.package?.package_reference || d.package_id.toString(),
                 address: d.package?.address || ''
@@ -86,11 +117,14 @@ export default function BatchDispatch() {
         
         // Find the package in the pending deliveries to get its ID
         const matchedDelivery = pendingDeliveries.find(d => 
-            d.package?.package_reference === reference || d.package_id.toString() === reference
+            (d.package?.package_reference === reference || d.package_id.toString() === reference)
         )
 
         if (!matchedDelivery) {
             setError(`Package ${reference} not found in pending deliveries`)
+            setTimeout(() => setError(''), 3000)
+        } else if (selectedBranch && matchedDelivery.package?.branch_id && matchedDelivery.package?.branch_id != selectedBranch) {
+            setError(`Package ${reference} belongs to a different branch`)
             setTimeout(() => setError(''), 3000)
         } else if (scannedPackages.find(p => p.id === matchedDelivery.package_id)) {
             setError(`Package ${reference} is already in the virtual bag`)
@@ -111,6 +145,7 @@ export default function BatchDispatch() {
 
     const addAllPending = () => {
         const newPackages = pendingDeliveries
+            .filter(d => !selectedBranch || d.package?.branch_id == selectedBranch)
             .filter(d => !scannedPackages.find(p => p.id === d.package_id))
             .map(d => ({
                 id: d.package_id,
@@ -138,11 +173,8 @@ export default function BatchDispatch() {
     }
 
     const toggleDriver = (id) => {
-        if (selectedDrivers.includes(id)) {
-            setSelectedDrivers(selectedDrivers.filter(dId => dId !== id))
-        } else {
-            setSelectedDrivers([...selectedDrivers, id])
-        }
+        // Only allow one driver to be selected for manual assignment
+        setSelectedDrivers([id])
     }
 
     const handleGenerateRoutes = async () => {
@@ -165,12 +197,11 @@ export default function BatchDispatch() {
 
         try {
             const payload = {
-                branch_id: parseInt(selectedBranch),
-                package_ids: scannedPackages.map(p => p.id),
-                driver_ids: selectedDrivers
+                driver_id: selectedDrivers[0],
+                package_ids: scannedPackages.map(p => p.id)
             }
 
-            const res = await deliveryService.generateBatch(payload)
+            const res = await deliveryService.manualAssign(payload)
             
             setSuccess(res.mensaje || 'Routes generated successfully!')
             
@@ -179,7 +210,18 @@ export default function BatchDispatch() {
             setSelectedDrivers([])
             // Refresh pending deliveries in case we want to do another batch
             const pendingData = await deliveryService.getPendingDeliveries()
-            setPendingDeliveries(Array.isArray(pendingData) ? pendingData : [])
+            const pendingList = Array.isArray(pendingData) ? pendingData : []
+            setPendingDeliveries(pendingList)
+            
+            // Auto-populate the bag again but only for the selected branch
+            const branchPending = pendingList.filter(d => 
+                !selectedBranch || d.package?.branch_id == selectedBranch
+            )
+            setScannedPackages(branchPending.map(d => ({
+                id: d.package_id,
+                reference: d.package?.package_reference || d.package_id.toString(),
+                address: d.package?.address || ''
+            })))
             
         } catch (err) {
             console.error(err)
@@ -210,10 +252,10 @@ export default function BatchDispatch() {
             <div className="mb-8">
                 <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
                     <Route className="w-8 h-8 md:w-10 md:h-10 text-violet-600" />
-                    Batch Dispatch
+                    Asignación Manual / Excepciones
                 </h1>
                 <p className="text-slate-500 font-medium mt-2 max-w-2xl">
-                    Scan packages, select available drivers, and generate AI-optimized routes with clustering and TSP sorting.
+                    Escanea paquetes y asígnalos manualmente a un conductor específico.
                 </p>
             </div>
 
@@ -317,8 +359,8 @@ export default function BatchDispatch() {
                                 </div>
                             ) : (
                                 <div className="space-y-3">
-                                    {scannedPackages.map(pkg => (
-                                        <div key={pkg.id} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between group hover:border-blue-200 transition-colors">
+                                    {scannedPackages.map((pkg, index) => (
+                                        <div key={`pkg-${pkg.id}-${index}`} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between group hover:border-blue-200 transition-colors">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
                                                     <Package className="w-5 h-5" />
@@ -364,14 +406,16 @@ export default function BatchDispatch() {
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                            {drivers.length === 0 ? (
-                                <p className="text-center text-slate-500 py-10 font-medium">No active drivers found.</p>
-                            ) : (
-                                drivers.map(driver => {
+                            {(() => {
+                                const branchDrivers = drivers.filter(d => !selectedBranch || d.branch_id == selectedBranch)
+                                if (branchDrivers.length === 0) {
+                                    return <p className="text-center text-slate-500 py-10 font-medium">No active drivers found for this branch.</p>
+                                }
+                                return branchDrivers.map((driver, index) => {
                                     const isSelected = selectedDrivers.includes(driver.id)
                                     return (
                                         <button
-                                            key={driver.id}
+                                            key={`drv-${driver.id}-${index}`}
                                             onClick={() => toggleDriver(driver.id)}
                                             className={`w-full p-4 rounded-2xl border-2 transition-all flex items-center gap-4 group ${
                                                 isSelected
@@ -382,11 +426,11 @@ export default function BatchDispatch() {
                                             <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg shrink-0 transition-colors ${
                                                 isSelected ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200'
                                             }`}>
-                                                {driver.user?.name?.charAt(0).toUpperCase()}
+                                                {driver.name ? driver.name.charAt(0).toUpperCase() : '?'}
                                             </div>
                                             <div className="text-left flex-1">
                                                 <p className={`font-bold ${isSelected ? 'text-emerald-900' : 'text-slate-800'}`}>
-                                                    {driver.user?.name}
+                                                    {driver.name}
                                                 </p>
                                                 <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
                                                     <Truck className="w-3 h-3" /> Driver
@@ -400,7 +444,7 @@ export default function BatchDispatch() {
                                         </button>
                                     )
                                 })
-                            )}
+                            })()}
                         </div>
                     </div>
 
@@ -444,7 +488,7 @@ export default function BatchDispatch() {
                             ) : (
                                 <>
                                     <Play className="w-5 h-5" fill="currentColor" />
-                                    Generate Batch
+                                    Assign Manually
                                 </>
                             )}
                         </button>

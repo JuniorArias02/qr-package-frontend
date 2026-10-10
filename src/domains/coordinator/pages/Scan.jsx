@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import deliveryService from '../services/delivery.service'
 import PackageScanner from '../components/PackageScanner'
 import DriverSelector from '../components/DriverSelector'
@@ -15,13 +15,19 @@ import {
     Phone,
     ArrowRight
 } from 'lucide-react'
+import { useAuth } from '../../../core/auth/AuthContext'
+import branchService from '../../driver/services/branchService'
 
 export default function Scan() {
-    const [step, setStep] = useState('idle') // idle, registration, manual_selection, result
+    const { user: authUser } = useAuth()
+    const [step, setStep] = useState('idle') 
     const [loading, setLoading] = useState(false)
     const [scanData, setScanData] = useState(null)
     const [selectedDriverId, setSelectedDriverId] = useState(null)
     const [error, setError] = useState('')
+
+    const [branches, setBranches] = useState([])
+    const [selectedBranch, setSelectedBranch] = useState(authUser?.branch_id || '')
 
     // Form data for new package
     const [formData, setFormData] = useState({
@@ -29,7 +35,30 @@ export default function Scan() {
         address: ''
     })
 
+    useEffect(() => {
+        if (authUser?.branch_id && !selectedBranch) {
+            setSelectedBranch(authUser.branch_id)
+        }
+    }, [authUser])
+
+    useEffect(() => {
+        const fetchBranches = async () => {
+            try {
+                const data = await branchService.getBranches()
+                setBranches(data.data || data.objeto || data || [])
+            } catch (err) {
+                console.error(err)
+            }
+        }
+        fetchBranches()
+    }, [])
+
     const handleScan = async (reference) => {
+        if (!selectedBranch) {
+            setError('Please select an Origin Branch first')
+            return
+        }
+
         setLoading(true)
         setError('')
         try {
@@ -66,6 +95,7 @@ export default function Scan() {
         try {
             const data = {
                 ...formData,
+                branch_id: selectedBranch,
                 driver_id: selectedDriverId
             }
             const response = await deliveryService.registerPackage(data)
@@ -116,7 +146,7 @@ export default function Scan() {
         <>
             <div className="max-w-2xl mx-auto pb-12">
                 {/* Header Section */}
-                <div className="mb-8 flex items-center justify-between">
+                <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <div className="flex items-center gap-2 text-violet-600 mb-1">
                             <Truck className="w-4 h-4" />
@@ -124,6 +154,19 @@ export default function Scan() {
                         </div>
                         <h1 className="text-3xl font-bold text-slate-900">Scanner</h1>
                         <p className="text-slate-500 text-sm">Assign packages to drivers efficiently</p>
+                    </div>
+                    <div className="w-full md:w-64">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1 mb-1 block">Origin Branch</label>
+                        <select
+                            value={selectedBranch}
+                            onChange={(e) => setSelectedBranch(e.target.value)}
+                            className="w-full pl-4 pr-10 py-2.5 bg-white border-2 border-slate-200 rounded-xl focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 outline-none transition-all font-bold text-slate-900 cursor-pointer"
+                        >
+                            <option value="" disabled>Select Branch</option>
+                            {branches.map(b => (
+                                <option key={b.id} value={b.id}>{b.name}</option>
+                            ))}
+                        </select>
                     </div>
                 </div>
 

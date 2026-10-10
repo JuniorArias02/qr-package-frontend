@@ -175,7 +175,7 @@ export default function BranchesForm() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto p-6 pb-24">
+        <div className="max-w-[1400px] mx-auto p-6 pb-24">
             <Link 
                 to="/coordinator/branches"
                 className="inline-flex items-center gap-2 text-slate-500 font-bold hover:text-violet-600 transition-colors mb-8"
@@ -208,10 +208,10 @@ export default function BranchesForm() {
                 </div>
             )}
 
-            <form onSubmit={handleSubmit} className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col lg:flex-row">
+            <form onSubmit={handleSubmit} className="bg-white rounded-[2.5rem] border border-slate-200 shadow-xl shadow-slate-200/40 overflow-hidden flex flex-col lg:flex-row min-h-[750px]">
                 
                 {/* Form Fields Section */}
-                <div className="flex-1 p-8 space-y-6">
+                <div className="w-full lg:w-[480px] shrink-0 p-10 space-y-8 bg-white z-10 shadow-[4px_0_24px_rgba(0,0,0,0.04)] relative">
                     <div>
                         <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
                             Branch Name
@@ -285,12 +285,12 @@ export default function BranchesForm() {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="w-full py-4 bg-gradient-to-r from-violet-600 to-indigo-700 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-violet-500/30 hover:shadow-2xl hover:shadow-violet-500/40 active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:active:scale-100"
+                            className="w-full py-5 bg-gradient-to-r from-violet-600 to-indigo-700 text-white rounded-[1.25rem] font-black uppercase tracking-widest text-sm shadow-xl shadow-indigo-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:active:scale-100 group"
                         >
                             {saving ? (
                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                             ) : (
-                                <Save className="w-5 h-5" />
+                                <Save className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
                             )}
                             {isEditing ? 'Save Changes' : 'Create Branch'}
                         </button>
@@ -298,9 +298,11 @@ export default function BranchesForm() {
                 </div>
 
                 {/* Map Section */}
-                <div className="flex-1 bg-slate-100 min-h-[400px] relative z-0 border-l border-slate-200">
-                    <div className="absolute top-4 left-4 right-4 z-[1000] bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-lg border border-slate-200 text-xs font-bold text-slate-600 flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-violet-600" />
+                <div className="flex-1 bg-slate-50 min-h-[500px] lg:min-h-[750px] relative z-0">
+                    <div className="absolute top-6 left-6 z-[1000] bg-white/90 backdrop-blur-xl px-4 py-3 rounded-[1.25rem] shadow-xl border border-slate-200 text-xs font-black uppercase tracking-widest text-slate-700 flex items-center gap-3">
+                        <div className="p-1.5 bg-violet-100 text-violet-600 rounded-lg">
+                            <MapPin className="w-4 h-4" />
+                        </div>
                         Click on the map to set branch coordinates
                     </div>
                     

@@ -14,7 +14,8 @@ const ReportFilters = ({ onFilter }) => {
         const loadDrivers = async () => {
             try {
                 const data = await driverService.getAll();
-                setDrivers(data);
+                const driversList = data?.objeto || data?.data || (Array.isArray(data) ? data : []);
+                setDrivers(driversList);
             } catch (error) {
                 console.error('Error loading drivers for filters', error);
             }
@@ -75,9 +76,9 @@ const ReportFilters = ({ onFilter }) => {
                         className="w-full px-5 py-3.5 rounded-2xl border-2 border-slate-100 bg-slate-50/50 text-slate-700 font-bold focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 transition-all outline-none appearance-none"
                     >
                         <option value="">All Drivers</option>
-                        {drivers.map(driver => (
+                        {drivers && drivers.map(driver => (
                             <option key={driver.id} value={driver.id}>
-                                {driver.user?.name || `ID: ${driver.id}`}
+                                {driver.name || `ID: ${driver.id}`}
                             </option>
                         ))}
                     </select>

@@ -43,10 +43,10 @@ class DeliveryService {
         return response.data.objeto || []
     }
     /**
-     * Generates a batch route assigning pending packages to active drivers using a specific branch.
+     * Manually assigns multiple packages to a driver
      */
-    async generateBatch(data: { branch_id: number; package_ids: number[]; driver_ids: number[] }): Promise<any> {
-        const response = await api.post('/v1/delivery/generate-batch', data)
+    async manualAssign(data: { driver_id: number; package_ids: number[] }): Promise<any> {
+        const response = await api.post('/v1/delivery/manual-assign', data)
         return response.data
     }
 
@@ -79,6 +79,15 @@ class DeliveryService {
     async getActiveRoutes(): Promise<any> {
         const response = await api.get('/v1/delivery/active-routes')
         return response.data.objeto || response.data || []
+    }
+
+    /**
+     * Gets undelivered packages locations (geocoded and non-geocoded)
+     */
+    async getUndeliveredLocations(): Promise<any> {
+        const response = await api.get('/v1/delivery/undelivered-locations')
+        // Return 'data' array directly as per DTO structure
+        return response.data.data || response.data.objeto || []
     }
 }
 

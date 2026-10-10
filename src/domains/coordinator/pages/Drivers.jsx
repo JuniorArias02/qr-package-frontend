@@ -11,7 +11,9 @@ import {
     Mail,
     Loader2,
     ExternalLink,
-    MoreVertical
+    MoreVertical,
+    X,
+    CheckCircle
 } from 'lucide-react'
 
 export default function Drivers() {
@@ -30,7 +32,7 @@ export default function Drivers() {
         setLoading(true)
         try {
             const data = await driverService.getAll()
-            setDrivers(data || [])
+            setDrivers(Array.isArray(data) ? data : (data?.data || data?.objeto || []))
         } catch (err) {
             console.error(err)
             setError('Error loading drivers list')
@@ -54,10 +56,12 @@ export default function Drivers() {
         }
     }
 
-    const filteredDrivers = drivers.filter(d =>
-        d.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        d.user.email.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    const filteredDrivers = drivers.filter(d => {
+        const name = d.name || d.user?.name || '';
+        const email = d.email || d.user?.email || '';
+        return name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+               email.toLowerCase().includes(searchTerm.toLowerCase());
+    })
 
     return (
         <>
@@ -114,18 +118,22 @@ export default function Drivers() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {filteredDrivers.map(driver => (
+                        {filteredDrivers.map(driver => {
+                            const name = driver.name || driver.user?.name || 'Unknown';
+                            const email = driver.email || driver.user?.email || '';
+                            const isActive = driver.active !== undefined ? driver.active : driver.user?.active;
+                            return (
                             <div
                                 key={driver.id}
                                 className="group bg-white rounded-[2rem] border border-slate-100 shadow-lg shadow-slate-200/30 hover:shadow-2xl hover:shadow-violet-500/10 hover:-translate-y-1 transition-all duration-300 overflow-hidden"
                             >
                                 <div className="p-8">
                                     <div className="flex items-start justify-between mb-6">
-                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-black text-white shadow-lg ${driver.user.active
+                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-black text-white shadow-lg ${isActive
                                             ? 'bg-gradient-to-br from-violet-500 to-indigo-600 shadow-indigo-500/30'
                                             : 'bg-slate-400 shadow-slate-400/30'
                                             }`}>
-                                            {driver.user.name.charAt(0)}
+                                            {name.charAt(0).toUpperCase()}
                                         </div>
                                         <div className="flex gap-1">
                                             <button
@@ -143,21 +151,21 @@ export default function Drivers() {
 
                                     <div className="space-y-1 mb-6">
                                         <h3 className="text-xl font-bold text-slate-900 truncate group-hover:text-violet-600 transition-colors">
-                                            {driver.user.name}
+                                            {name}
                                         </h3>
                                         <p className="text-slate-500 text-sm font-medium flex items-center gap-2 text-ellipsis overflow-hidden">
                                             <Mail className="w-4 h-4 shrink-0" />
-                                            {driver.user.email}
+                                            {email}
                                         </p>
                                     </div>
 
                                     <div className="flex items-center justify-between pt-6 border-t border-slate-50">
-                                        <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${driver.user.active
+                                        <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${isActive
                                             ? 'bg-emerald-50 text-emerald-600'
                                             : 'bg-red-50 text-red-600'
                                             }`}>
-                                            <div className={`w-1.5 h-1.5 rounded-full ${driver.active ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
-                                            {driver.active ? 'Ready' : 'Off-duty'}
+                                            <div className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-emerald-500 animate-pulse' : 'bg-red-500'}`} />
+                                            {isActive ? 'Ready' : 'Off-duty'}
                                         </div>
 
                                         <div className="flex items-center gap-2">
@@ -178,7 +186,7 @@ export default function Drivers() {
                                     </div>
                                 </div>
                             </div>
-                        ))}
+                        )})}
                     </div>
                 )}
             </div>

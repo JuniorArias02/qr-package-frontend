@@ -38,18 +38,16 @@ export default function FailedDeliveries() {
         }
     }
 
-    const handleRequeue = async (id) => {
-        setRequeueingId(id)
+    const handleRequeue = async (deliveryId) => {
+        setRequeueingId(deliveryId)
         setError('')
         setSuccess('')
         try {
-            await deliveryService.requeuePackage(id)
-            setSuccess('Package requeued successfully!')
-            setDeliveries(deliveries.filter(d => d.id !== id))
+            await deliveryService.requeuePackage(deliveryId)
+            setSuccess('Package requeued to pending successfully!')
+            setDeliveries(deliveries.filter(d => d.id !== deliveryId))
             setTimeout(() => {
                 setSuccess('')
-                // Redirigir a BatchDispatch para que puedan reasignarlo
-                navigate('/coordinator/batch-dispatch')
             }, 1500)
         } catch (err) {
             console.error(err)

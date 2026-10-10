@@ -16,15 +16,89 @@ import {
     Package,
     CheckCircle2,
     List,
-    Map as MapIcon
+    Map as MapIcon,
+    Flag,
+    AlertOctagon,
+    Loader2,
+    X,
+    ChevronUp,
+    ChevronDown,
+    Wand2
 } from 'lucide-react'
+import driverService from '../services/driverService'
 
 export default function Deliveries() {
     const { deliveries, stats, loading, error, fetchMyDeliveries, updateStatus } = useDeliveries()
     const [searchTerm, setSearchTerm] = useState('')
     const [updatingId, setUpdatingId] = useState(null)
     const [successMsg, setSuccessMsg] = useState('')
-    const [activeTab, setActiveTab] = useState('list') // 'list' | 'map'
+    const [showMapModal, setShowMapModal] = useState(false)
+    const [isReordering, setIsReordering] = useState(false)
+    const [reorderList, setReorderList] = useState([])
+    const [loadingReorder, setLoadingReorder] = useState(false)
+    const [loadingOptimize, setLoadingOptimize] = useState(false)
+    const [showFinishModal, setShowFinishModal] = useState(false)
+    const [finishingRoute, setFinishingRoute] = useState(false)
+
+    const handleOptimize = async () => {
+        setLoadingOptimize(true)
+        try {
+            const res = await driverService.optimizeDeliveries()
+            setSuccessMsg(res.message || 'Ruta optimizada con éxito')
+            fetchMyDeliveries()
+        } catch (err) {
+            console.error(err)
+            alert('Error optimizando ruta')
+        } finally {
+            setLoadingOptimize(false)
+            setTimeout(() => setSuccessMsg(''), 5000)
+        }
+    }
+
+    const startReorder = () => {
+        setIsReordering(true)
+        // Ensure sortedDeliveries is captured from the closure
+        setReorderList([...deliveries].sort((a, b) => {
+            const orderA = typeof a.delivery_order === 'number' ? a.delivery_order : 9999;
+            const orderB = typeof b.delivery_order === 'number' ? b.delivery_order : 9999;
+            return orderA - orderB;
+        }))
+    }
+
+    const moveUp = (index) => {
+        if (index === 0) return
+        const newList = [...reorderList]
+        const temp = newList[index - 1]
+        newList[index - 1] = newList[index]
+        newList[index] = temp
+        setReorderList(newList)
+    }
+
+    const moveDown = (index) => {
+        if (index === reorderList.length - 1) return
+        const newList = [...reorderList]
+        const temp = newList[index + 1]
+        newList[index + 1] = newList[index]
+        newList[index] = temp
+        setReorderList(newList)
+    }
+
+    const handleSaveOrder = async () => {
+        setLoadingReorder(true)
+        try {
+            const ids = reorderList.map(d => d.delivery_id || d.id)
+            await driverService.reorderDeliveries(ids)
+            setSuccessMsg('Ruta reordenada con éxito')
+            setIsReordering(false)
+            fetchMyDeliveries()
+        } catch (err) {
+            console.error(err)
+            alert('Error guardando el orden de la ruta')
+        } finally {
+            setLoadingReorder(false)
+            setTimeout(() => setSuccessMsg(''), 5000)
+        }
+    }
 
     useEffect(() => {
         fetchMyDeliveries()
@@ -57,6 +131,22 @@ export default function Deliveries() {
             alert('Error updating status')
         } finally {
             setUpdatingId(null)
+        }
+    }
+
+    const handleFinishRoute = async () => {
+        setFinishingRoute(true)
+        try {
+            const res = await driverService.finishRoute()
+            setSuccessMsg(res.message || `Route finished. ${res.returned_count || 0} packages returned.`)
+            setShowFinishModal(false)
+            fetchMyDeliveries()
+            setTimeout(() => setSuccessMsg(''), 5000)
+        } catch (err) {
+            console.error(err)
+            alert('Error finishing route')
+        } finally {
+            setFinishingRoute(false)
         }
     }
 
@@ -109,13 +199,22 @@ export default function Deliveries() {
                         <h1 className="text-4xl font-black text-slate-900 tracking-tight">My Route</h1>
                         <p className="text-slate-500 font-medium mt-2">Manage your assigned packages for today's route</p>
                     </div>
-                    <Link 
-                        to="/driver/scan" 
-                        className="px-8 py-4 bg-gradient-to-r from-violet-600 to-indigo-700 hover:to-indigo-600 text-white rounded-[1.5rem] font-black uppercase tracking-widest text-xs flex items-center gap-3 shadow-xl shadow-indigo-500/30 transition-all active:scale-95 group"
-                    >
-                        <Scan className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                        Scan Package
-                    </Link>
+                    <div className="flex items-center gap-4">
+                        <button 
+                            onClick={() => setShowFinishModal(true)}
+                            className="px-8 py-4 bg-red-50 text-red-600 border border-red-200 hover:bg-red-600 hover:text-white rounded-[1.5rem] font-black uppercase tracking-widest text-xs flex items-center gap-3 transition-all active:scale-95 group"
+                        >
+                            <Flag className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                            Finish Route
+                        </button>
+                        <Link 
+                            to="/driver/scan" 
+                            className="px-8 py-4 bg-gradient-to-r from-violet-600 to-indigo-700 hover:to-indigo-600 text-white rounded-[1.5rem] font-black uppercase tracking-widest text-xs flex items-center gap-3 shadow-xl shadow-indigo-500/30 transition-all active:scale-95 group"
+                        >
+                            <Scan className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                            Scan Package
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Success Toast */}
@@ -169,32 +268,52 @@ export default function Deliveries() {
                     </div>
                 </div>
 
-                {/* View Switcher */}
-                <div className="flex justify-center mb-8 relative z-10">
-                    <div className="bg-slate-200/50 p-1.5 rounded-[2.5rem] flex items-center gap-2 max-w-sm w-full relative z-10 backdrop-blur-md">
-                        <button
-                            onClick={() => setActiveTab('list')}
-                            className={`flex-1 py-4 px-6 rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all duration-300 ${
-                                activeTab === 'list' 
-                                ? 'bg-white text-violet-700 shadow-sm' 
-                                : 'text-slate-500 hover:text-slate-700'
-                            }`}
-                        >
-                            <List className="w-4 h-4" />
-                            List View
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('map')}
-                            className={`flex-1 py-4 px-6 rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all duration-300 ${
-                                activeTab === 'map' 
-                                ? 'bg-white text-violet-700 shadow-sm' 
-                                : 'text-slate-500 hover:text-slate-700'
-                            }`}
-                        >
-                            <MapIcon className="w-4 h-4" />
-                            Map View
-                        </button>
-                    </div>
+                {/* Route Actions */}
+                <div className="flex flex-wrap gap-4 justify-center mb-8 relative z-10">
+                    <button
+                        onClick={() => setShowMapModal(true)}
+                        className="py-4 px-6 bg-white border border-slate-200 text-slate-700 rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm"
+                    >
+                        <MapIcon className="w-4 h-4 text-violet-600" />
+                        Ver Mapa
+                    </button>
+                    {!isReordering ? (
+                        <>
+                            <button
+                                onClick={startReorder}
+                                className="py-4 px-6 bg-white border border-slate-200 text-slate-700 rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm"
+                            >
+                                <List className="w-4 h-4 text-amber-500" />
+                                Organizar Ruta
+                            </button>
+                            <button
+                                onClick={handleOptimize}
+                                disabled={loadingOptimize}
+                                className="py-4 px-6 bg-gradient-to-r from-violet-600 to-indigo-700 text-white rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/25"
+                            >
+                                {loadingOptimize ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
+                                Optimizar Ruta
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <button
+                                onClick={() => setIsReordering(false)}
+                                disabled={loadingReorder}
+                                className="py-4 px-6 bg-slate-100 text-slate-600 rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center gap-2 hover:bg-slate-200 transition-all"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleSaveOrder}
+                                disabled={loadingReorder}
+                                className="py-4 px-6 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/25 transition-all"
+                            >
+                                {loadingReorder ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                                Guardar Orden
+                            </button>
+                        </>
+                    )}
                 </div>
 
                 {/* Advanced Search */}
@@ -225,22 +344,22 @@ export default function Deliveries() {
                         <h3 className="text-2xl font-black text-slate-900 mb-2">No assigned deliveries</h3>
                         <p className="text-slate-500 font-medium max-w-md">You're all caught up for now. Check back later or scan a new package manually.</p>
                     </div>
-                ) : activeTab === 'list' ? (
+                ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative z-10">
-                        {sortedDeliveries.map(delivery => {
+                        {(isReordering ? reorderList : sortedDeliveries).map((delivery, index) => {
                             const addressStr = delivery.package?.geocoded_address?.full_address || delivery.package?.address || '';
                             const lat = delivery.package?.geocoded_address?.latitude;
                             const lng = delivery.package?.geocoded_address?.longitude;
                             const hasCoords = lat && lng;
 
                             return (
-                                <div key={delivery.id} className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+                                <div key={delivery.id} className={`bg-white rounded-[2.5rem] border ${isReordering ? 'border-amber-400 shadow-amber-500/10 shadow-lg' : 'border-slate-200'} overflow-hidden hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300 group flex flex-col`}>
                                     <div className="p-8 flex-1">
                                         <div className="flex justify-between items-start mb-6 gap-4">
                                             <div>
                                                 <div className="flex items-center gap-3 mb-2">
                                                     <div className="w-12 h-12 rounded-xl bg-violet-50 flex items-center justify-center border border-violet-100 shrink-0">
-                                                        <span className="font-black text-violet-700 text-xl">{delivery.delivery_order || '#'}</span>
+                                                        <span className="font-black text-violet-700 text-xl">{isReordering ? index + 1 : (delivery.delivery_order || '#')}</span>
                                                     </div>
                                                     <div>
                                                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Reference Code</p>
@@ -248,7 +367,18 @@ export default function Deliveries() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            {getStatusBadge(delivery)}
+                                            {isReordering ? (
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => moveUp(index)} disabled={index === 0} className="p-3 bg-slate-100 text-slate-600 rounded-xl hover:bg-violet-100 hover:text-violet-600 disabled:opacity-30 disabled:hover:bg-slate-100 disabled:hover:text-slate-600 transition-colors">
+                                                        <ChevronUp className="w-5 h-5" />
+                                                    </button>
+                                                    <button onClick={() => moveDown(index)} disabled={index === reorderList.length - 1} className="p-3 bg-slate-100 text-slate-600 rounded-xl hover:bg-violet-100 hover:text-violet-600 disabled:opacity-30 disabled:hover:bg-slate-100 disabled:hover:text-slate-600 transition-colors">
+                                                        <ChevronDown className="w-5 h-5" />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                getStatusBadge(delivery)
+                                            )}
                                         </div>
 
                                         <div className="bg-slate-50 p-6 rounded-[2rem] mb-2 border border-slate-100 relative overflow-hidden">
@@ -296,7 +426,7 @@ export default function Deliveries() {
                                     </div>
 
                                     {/* Action Buttons Footer */}
-                                    {delivery.status === 'assigned' && (
+                                    {!isReordering && delivery.status === 'assigned' && (
                                         <div className="p-4 bg-slate-50 border-t border-slate-100 flex gap-4">
                                             <button
                                                 onClick={() => handleStatusUpdate(delivery.id, 'failed', delivery.observation)}
@@ -324,8 +454,62 @@ export default function Deliveries() {
                             )
                         })}
                     </div>
-                ) : (
-                    <DeliveryMap deliveries={sortedDeliveries} />
+                )}
+
+                {/* Map Modal */}
+                {showMapModal && (
+                    <div className="fixed inset-0 z-[100] bg-white flex flex-col animate-in slide-in-from-bottom duration-300">
+                        <div className="p-6 border-b border-slate-100 flex items-center justify-between shadow-sm bg-white relative z-10">
+                            <div>
+                                <h2 className="text-2xl font-black text-slate-900">Ruta en Mapa</h2>
+                                <p className="text-slate-500 text-sm font-medium">Vista general de tus entregas</p>
+                            </div>
+                            <button 
+                                onClick={() => setShowMapModal(false)}
+                                className="p-3 bg-slate-50 text-slate-500 hover:bg-slate-100 rounded-2xl transition-colors"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <div className="flex-1 relative bg-slate-50">
+                            <DeliveryMap deliveries={sortedDeliveries} />
+                        </div>
+                    </div>
+                )}
+
+                {/* Finish Route Modal */}
+                {showFinishModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
+                        <div className="bg-white rounded-[2.5rem] max-w-md w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+                            <div className="p-8 text-center relative">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-red-500" />
+                                <div className="w-20 h-20 bg-red-50 rounded-[2rem] flex items-center justify-center text-red-500 mx-auto mb-6">
+                                    <AlertOctagon className="w-10 h-10" />
+                                </div>
+                                <h3 className="text-2xl font-black text-slate-900 mb-2">Finish Route?</h3>
+                                <p className="text-slate-500 font-medium mb-8">
+                                    This will mark the end of your shift. Any pending packages will be automatically returned to the branch. This action cannot be undone.
+                                </p>
+                                <div className="flex gap-4">
+                                    <button 
+                                        onClick={() => setShowFinishModal(false)}
+                                        disabled={finishingRoute}
+                                        className="flex-1 py-4 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-2xl font-black uppercase tracking-widest text-xs transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button 
+                                        onClick={handleFinishRoute}
+                                        disabled={finishingRoute}
+                                        className="flex-1 py-4 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-red-500/25 transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        {finishingRoute ? <Loader2 className="w-5 h-5 animate-spin" /> : <Flag className="w-5 h-5" />}
+                                        Confirm
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 )}
             </div>
         </>
